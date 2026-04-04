@@ -1,6 +1,7 @@
 #pragma once
 
 #include "esp_err.h"
+#include <stdbool.h>
 
 /**
  * Initialize the Telegram bot.
@@ -11,6 +12,11 @@ esp_err_t telegram_bot_init(void);
  * Start the Telegram polling task (long polling on Core 0).
  */
 esp_err_t telegram_bot_start(void);
+
+/**
+ * Returns true when a Telegram bot token is configured and polling can be started.
+ */
+bool telegram_bot_is_configured(void);
 
 /**
  * Send a text message to a Telegram chat.
@@ -24,4 +30,3 @@ esp_err_t telegram_send_message(const char *chat_id, const char *text);
  * Save the Telegram bot token to NVS.
  */
 esp_err_t telegram_set_token(const char *token);
-

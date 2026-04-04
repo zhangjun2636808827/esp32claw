@@ -27,7 +27,6 @@
 #include "skills/skill_loader.h"
 #include "onboard/wifi_onboard.h"
 #include "led/ws2812_driver.h"
-#include "led/ws2812_driver.h"
 
 static const char *TAG = "mimi";
 
@@ -173,9 +172,13 @@ void app_main(void)
         return;  /* unreachable */
     }
 
+#if MIMI_ONBOARD_KEEP_ADMIN_AP
     if (wifi_onboard_start(WIFI_ONBOARD_MODE_ADMIN) != ESP_OK) {
         ESP_LOGW(TAG, "Local admin portal unavailable; continuing without config hotspot");
     }
+#else
+    ESP_LOGI(TAG, "Local admin portal disabled for lower runtime overhead");
+#endif
 
     {
         /* Outbound dispatch task should start first to avoid dropping early replies. */
@@ -187,7 +190,11 @@ void app_main(void)
 
         /* Start network-dependent services */
         ESP_ERROR_CHECK(agent_loop_start());
-        ESP_ERROR_CHECK(telegram_bot_start());
+        if (telegram_bot_is_configured()) {
+            ESP_ERROR_CHECK(telegram_bot_start());
+        } else {
+            ESP_LOGI(TAG, "Telegram service skipped: no bot token configured");
+        }
         ESP_ERROR_CHECK(feishu_bot_start());
         cron_service_start();
         heartbeat_start();

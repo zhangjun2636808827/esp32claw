@@ -433,12 +433,22 @@ esp_err_t telegram_bot_init(void)
 
 esp_err_t telegram_bot_start(void)
 {
+    if (s_bot_token[0] == '\0') {
+        ESP_LOGI(TAG, "Telegram polling disabled: no bot token configured");
+        return ESP_ERR_INVALID_STATE;
+    }
+
     BaseType_t ret = xTaskCreatePinnedToCore(
         telegram_poll_task, "tg_poll",
         MIMI_TG_POLL_STACK, NULL,
         MIMI_TG_POLL_PRIO, NULL, MIMI_TG_POLL_CORE);
 
     return (ret == pdPASS) ? ESP_OK : ESP_FAIL;
+}
+
+bool telegram_bot_is_configured(void)
+{
+    return s_bot_token[0] != '\0';
 }
 
 esp_err_t telegram_send_message(const char *chat_id, const char *text)
