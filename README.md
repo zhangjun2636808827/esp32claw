@@ -1,8 +1,5 @@
-# MimiClaw: Pocket AI Assistant on a $5 Chip
+# esp32claw: Pocket AI Assistant on esp32s3
 
-<p align="center">
-  <img src="assets/banner.png" alt="MimiClaw" width="500" />
-</p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
