@@ -16,6 +16,44 @@ static int s_retry_count = 0;
 static char s_ip_str[16] = "0.0.0.0";
 static bool s_connected = false;
 static bool s_reconnect_enabled = true;
+static TaskHandle_t s_reconnect_task = NULL;
+
+static void reconnect_task(void *arg)
+{
+    (void)arg;
+
+    while (1) {
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+
+        while (s_reconnect_enabled && !s_connected && s_retry_count < MIMI_WIFI_MAX_RETRY) {
+            uint32_t delay_ms = MIMI_WIFI_RETRY_BASE_MS << s_retry_count;
+            if (delay_ms > MIMI_WIFI_RETRY_MAX_MS) {
+                delay_ms = MIMI_WIFI_RETRY_MAX_MS;
+            }
+
+            ESP_LOGW(TAG, "Disconnected, retry %d/%d in %" PRIu32 "ms",
+                     s_retry_count + 1, MIMI_WIFI_MAX_RETRY, delay_ms);
+            vTaskDelay(pdMS_TO_TICKS(delay_ms));
+
+            if (!s_reconnect_enabled || s_connected) {
+                break;
+            }
+
+            esp_err_t err = esp_wifi_connect();
+            if (err != ESP_OK) {
+                ESP_LOGW(TAG, "esp_wifi_connect failed: %s", esp_err_to_name(err));
+            }
+
+            s_retry_count++;
+            break;
+        }
+
+        if (s_reconnect_enabled && !s_connected && s_retry_count >= MIMI_WIFI_MAX_RETRY) {
+            ESP_LOGE(TAG, "Failed to connect after %d retries", MIMI_WIFI_MAX_RETRY);
+            xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+        }
+    }
+}
 
 static const char *wifi_reason_to_str(wifi_err_reason_t reason)
 {
@@ -41,21 +79,15 @@ static void event_handler(void *arg, esp_event_base_t event_base,
         esp_wifi_connect();
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         s_connected = false;
+        strlcpy(s_ip_str, "0.0.0.0", sizeof(s_ip_str));
         wifi_event_sta_disconnected_t *disc = (wifi_event_sta_disconnected_t *)event_data;
         if (disc) {
             ESP_LOGW(TAG, "Disconnected (reason=%d:%s)", disc->reason, wifi_reason_to_str(disc->reason));
         }
         if (s_reconnect_enabled && s_retry_count < MIMI_WIFI_MAX_RETRY) {
-            /* Exponential backoff: 1s, 2s, 4s, 8s, ... capped at 30s */
-            uint32_t delay_ms = MIMI_WIFI_RETRY_BASE_MS << s_retry_count;
-            if (delay_ms > MIMI_WIFI_RETRY_MAX_MS) {
-                delay_ms = MIMI_WIFI_RETRY_MAX_MS;
+            if (s_reconnect_task) {
+                xTaskNotifyGive(s_reconnect_task);
             }
-            ESP_LOGW(TAG, "Disconnected, retry %d/%d in %" PRIu32 "ms",
-                     s_retry_count + 1, MIMI_WIFI_MAX_RETRY, delay_ms);
-            vTaskDelay(pdMS_TO_TICKS(delay_ms));
-            esp_wifi_connect();
-            s_retry_count++;
         } else {
             ESP_LOGE(TAG, "Failed to connect after %d retries", MIMI_WIFI_MAX_RETRY);
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
@@ -67,6 +99,7 @@ static void event_handler(void *arg, esp_event_base_t event_base,
         s_retry_count = 0;
         s_connected = true;
 
+        xEventGroupClearBits(s_wifi_event_group, WIFI_FAIL_BIT);
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
 }
@@ -74,6 +107,24 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 esp_err_t wifi_manager_init(void)
 {
     s_wifi_event_group = xEventGroupCreate();
+    if (!s_wifi_event_group) {
+        ESP_LOGE(TAG, "Failed to create WiFi event group");
+        return ESP_ERR_NO_MEM;
+    }
+
+    if (!s_reconnect_task) {
+        BaseType_t ok = xTaskCreate(
+            reconnect_task,
+            "wifi_reconnect",
+            3072,
+            NULL,
+            4,
+            &s_reconnect_task);
+        if (ok != pdPASS || !s_reconnect_task) {
+            ESP_LOGE(TAG, "Failed to create WiFi reconnect task");
+            return ESP_FAIL;
+        }
+    }
 
     ESP_ERROR_CHECK(esp_netif_init());
     esp_netif_create_default_wifi_sta();
@@ -122,6 +173,8 @@ esp_err_t wifi_manager_start(void)
     }
 
     s_reconnect_enabled = true;
+    s_retry_count = 0;
+    xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT);
     ESP_LOGI(TAG, "Connecting to SSID: %s", wifi_cfg.sta.ssid);
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
