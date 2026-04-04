@@ -1,11 +1,7 @@
 # Esp32Claw: 在Esp32s3上部署ai助理
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-</p>
-
-<p align="center">
-  <strong><a href="README.md">English</a> | <a href="README_CN.md">中文</a> </strong>
+  <strong><a href="README.md">English</a> | <a href="README_CN.md">中文</a> |<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></strong>
 </p>
 
 **$5 芯片上的 AI 助理（OpenClaw）。没有 Linux，没有 Node.js，纯 C。**
