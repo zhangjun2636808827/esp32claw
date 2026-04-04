@@ -4,6 +4,7 @@
 #include "led_strip.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 #include "freertos/task.h"
 
 #include <stdbool.h>
@@ -24,15 +25,28 @@ static uint8_t s_current_red = 0;
 static uint8_t s_current_green = 0;
 static uint8_t s_current_blue = 0;
 static uint8_t s_current_brightness = 0;
+static SemaphoreHandle_t s_led_mutex = NULL;
 
 static esp_err_t ws2812_apply_rgb(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness);
+
+static bool ws2812_lock(TickType_t timeout_ticks)
+{
+    if (!s_led_mutex) {
+        return false;
+    }
+    return xSemaphoreTake(s_led_mutex, timeout_ticks) == pdTRUE;
+}
+
+static void ws2812_unlock(void)
+{
+    if (s_led_mutex) {
+        xSemaphoreGive(s_led_mutex);
+    }
+}
 
 static void ws2812_breath_task(void *arg)
 {
     (void)arg;
-
-    uint8_t brightness = 0;
-    int direction = 1;
 
     while (1) {
         if (!s_breathing_enabled) {
@@ -42,40 +56,34 @@ static void ws2812_breath_task(void *arg)
             return;
         }
 
-        ws2812_apply_rgb(s_breath_red, s_breath_green, s_breath_blue, brightness);
+        TickType_t now_ticks = xTaskGetTickCount();
+        uint32_t now_ms = (uint32_t)(now_ticks * portTICK_PERIOD_MS);
+        uint32_t period_ms = s_breath_period_ms > 0 ? s_breath_period_ms : MIMI_WS2812_BREATH_PERIOD_MS;
+        uint32_t phase_ms = now_ms % period_ms;
+        uint32_t numerator;
 
-        int half_steps = (s_breath_max_brightness + MIMI_WS2812_BREATH_STEP - 1) / MIMI_WS2812_BREATH_STEP;
-        if (half_steps < 1) {
-            half_steps = 1;
-        }
-        int full_steps = half_steps * 2;
-        uint32_t delay_ms = s_breath_period_ms / (uint32_t)full_steps;
-        if (delay_ms < 1) {
-            delay_ms = 1;
-        }
-
-        if (direction > 0) {
-            if ((int)brightness + MIMI_WS2812_BREATH_STEP >= s_breath_max_brightness) {
-                brightness = s_breath_max_brightness;
-                direction = -1;
-            } else {
-                brightness = (uint8_t)(brightness + MIMI_WS2812_BREATH_STEP);
-            }
+        if (phase_ms < (period_ms / 2U)) {
+            numerator = phase_ms * 2U;
         } else {
-            if ((int)brightness - MIMI_WS2812_BREATH_STEP <= 0) {
-                brightness = 0;
-                direction = 1;
-            } else {
-                brightness = (uint8_t)(brightness - MIMI_WS2812_BREATH_STEP);
-            }
+            numerator = (period_ms - phase_ms) * 2U;
         }
 
-        vTaskDelay(pdMS_TO_TICKS(delay_ms));
+        uint32_t brightness = ((uint32_t)s_breath_max_brightness * numerator) / period_ms;
+        ws2812_apply_rgb(s_breath_red, s_breath_green, s_breath_blue, (uint8_t)brightness);
+        vTaskDelay(pdMS_TO_TICKS(MIMI_WS2812_BREATH_FRAME_MS));
     }
 }
 
 static esp_err_t ws2812_apply_rgb(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness)
 {
+    if (!s_strip) {
+        return ESP_ERR_INVALID_STATE;
+    }
+    if (!ws2812_lock(pdMS_TO_TICKS(100))) {
+        ESP_LOGW(TAG, "LED mutex timeout");
+        return ESP_ERR_TIMEOUT;
+    }
+
     uint16_t scaled_red = ((uint16_t)red * (uint16_t)brightness) / 255;
     uint16_t scaled_green = ((uint16_t)green * (uint16_t)brightness) / 255;
     uint16_t scaled_blue = ((uint16_t)blue * (uint16_t)brightness) / 255;
@@ -83,12 +91,14 @@ static esp_err_t ws2812_apply_rgb(uint8_t red, uint8_t green, uint8_t blue, uint
     esp_err_t err = led_strip_set_pixel(s_strip, 0, scaled_red, scaled_green, scaled_blue);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to set pixel: %s", esp_err_to_name(err));
+        ws2812_unlock();
         return err;
     }
 
     err = led_strip_refresh(s_strip);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to refresh strip: %s", esp_err_to_name(err));
+        ws2812_unlock();
         return err;
     }
 
@@ -96,6 +106,7 @@ static esp_err_t ws2812_apply_rgb(uint8_t red, uint8_t green, uint8_t blue, uint
     s_current_green = green;
     s_current_blue = blue;
     s_current_brightness = brightness;
+    ws2812_unlock();
 
     return ESP_OK;
 }
@@ -104,6 +115,14 @@ esp_err_t ws2812_driver_init(void)
 {
     if (s_ready) {
         return ESP_OK;
+    }
+
+    if (!s_led_mutex) {
+        s_led_mutex = xSemaphoreCreateMutex();
+        if (!s_led_mutex) {
+            ESP_LOGE(TAG, "Failed to create LED mutex");
+            return ESP_ERR_NO_MEM;
+        }
     }
 
     led_strip_config_t strip_config = {
@@ -180,9 +199,14 @@ esp_err_t ws2812_driver_off(void)
 
     s_breathing_enabled = false;
 
+    if (!ws2812_lock(pdMS_TO_TICKS(100))) {
+        ESP_LOGW(TAG, "LED mutex timeout");
+        return ESP_ERR_TIMEOUT;
+    }
     esp_err_t err = led_strip_clear(s_strip);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to clear strip: %s", esp_err_to_name(err));
+        ws2812_unlock();
         return err;
     }
 
@@ -190,6 +214,7 @@ esp_err_t ws2812_driver_off(void)
     s_current_green = 0;
     s_current_blue = 0;
     s_current_brightness = 0;
+    ws2812_unlock();
 
     ESP_LOGI(TAG, "LED off");
     return ESP_OK;
@@ -220,7 +245,7 @@ esp_err_t ws2812_driver_start_breathing(uint8_t red, uint8_t green, uint8_t blue
             NULL,
             4,
             &s_breath_task,
-            0);
+            1);
         if (ok != pdPASS) {
             s_breathing_enabled = false;
             s_breath_task = NULL;
