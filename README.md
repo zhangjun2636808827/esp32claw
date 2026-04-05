@@ -1,14 +1,14 @@
 # Esp32Claw: 在Esp32s3上部署ai助理
 
+
 <p align="center">
-  <strong><a href="README.md">English</a> | <a href="README_CN.md">中文</a> |<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></strong>
+  <strong><a href="README.md">English</a> | <a href="README_CN.md">中文</a> </strong>
 </p>
 
-**$5 芯片上的 AI 助理（OpenClaw）。没有 Linux，没有 Node.js，纯 C。**
+**本项目基于[MimiClaw](https://github.com/memovai/mimiclaw)，在价值25左右的esp32s3开发板上部署本地AI助手，可以实现飞书控制GPIO、读写本地文件、控制ws2812b实现呼吸灯等功能**
 
-MimiClaw 把一块小小的 ESP32-S3 开发板变成你的私人 AI 助理。插上 USB 供电，连上 WiFi，通过 Telegram 跟它对话 — 它能处理你丢给它的任何任务，还会随时间积累本地记忆不断进化 — 全部跑在一颗拇指大小的芯片上。
 
-## 认识 MimiClaw
+## 认识 [MimiClaw](https://github.com/memovai/mimiclaw)
 
 - **小巧** — 没有 Linux，没有 Node.js，没有臃肿依赖 — 纯 C
 - **好用** — 在 Telegram 发消息，剩下的它来搞定
@@ -16,91 +16,65 @@ MimiClaw 把一块小小的 ESP32-S3 开发板变成你的私人 AI 助理。插
 - **能干** — USB 供电，0.5W，24/7 运行
 - **可爱** — 一块 ESP32-S3 开发板，$5，没了
 
-## 工作原理
 
-![](assets/mimiclaw.png)
+## 相比于MimiClaw，esp32Claw做了以下修改：
 
-你在 Telegram 发一条消息，ESP32-S3 通过 WiFi 收到后送进 Agent 循环 — LLM 思考、调用工具、读取记忆 — 再把回复发回来。同时支持 **Anthropic (Claude)** 和 **OpenAI (GPT)** 两种提供商，运行时可切换。一切都跑在一颗 $5 的芯片上，所有数据存在本地 Flash。
+- **使用MiniMax的API，每月29RMB**
+- **增加了WS2812B驱动，实现呼吸灯功能**
+- **增加了设备状态查询工具，可以通过飞书查询设备WiFi、IP、运行时长、内存、PSRAM、当前灯模式、颜色、亮度和呼吸周期等信息**
+- **修改了WIFI重连逻辑，避免宕机**
+- **优化了只配置了飞书的条件下，Telegram支线依然运行的问题**
+- **优化了连接wifi后，本地管理AP常驻问题，节省资源**
 
 ## 快速开始
 
 ### 你需要
 
-- 一块 **ESP32-S3 开发板**，16MB Flash + 8MB PSRAM（如小智 AI 开发板，~¥30）
+- 一块 **ESP32-S3 开发板**，16MB Flash + 8MB PSRAM
 - 一根 **USB Type-C 数据线**
-- 一个 **Telegram Bot Token** — 在 Telegram 找 [@BotFather](https://t.me/BotFather) 创建
-- 一个 **Anthropic API Key** — 从 [console.anthropic.com](https://console.anthropic.com) 获取，或一个 **OpenAI API Key** — 从 [platform.openai.com](https://platform.openai.com) 获取
+- 一个 **飞书机器人**
+- 一个 **大模型API**
 
-### 安装
+### Windows11 安装
 
 ```bash
 # 需要先安装 ESP-IDF v5.5+:
-# https://docs.espressif.com/projects/esp-idf/en/v5.5.2/esp32s3/get-started/
+# 若git clone下载不下来，到官网找到5.5.2版本下载zip
+git clone -b v5.5.2 --recursive https://github.com/espressif/esp-idf.git
 
-git clone https://github.com/memovai/mimiclaw.git
-cd mimiclaw
+git clone https://github.com/zhangjun2636808827/esp32claw
 
+
+# 先安装idf
+cd esp-idf-v5.5.2
+# 终端进入cmd，不然安装后识别不到idf.py
+cmd
+# 安装
+install.bat
+export.bat 
+# 验证安装
+idf.py --help
+# 得到以下结果表明在这个终端安装成功
+```
+<img src="assets/install.png" alt="" width="480" />
+
+```bash
+# 进入esp32claw目录
+cd esp32claw
+# 选择芯片
 idf.py set-target esp32s3
+# 复制配置文件，所有的信息都填写在这个文件中
+cp main/mimi_secrets.h.example main/mimi_secrets.h
 ```
+<img src="assets\config.png" alt="" width="480" />
 
-<details>
-<summary>Ubuntu 安装</summary>
 
-建议基线：
 
-- Ubuntu 22.04/24.04
-- Python >= 3.10
-- CMake >= 3.16
-- Ninja >= 1.10
-- Git >= 2.34
-- flex >= 2.6
-- bison >= 3.8
-- gperf >= 3.1
-- dfu-util >= 0.11
-- `libusb-1.0-0`、`libffi-dev`、`libssl-dev`
 
-Ubuntu 安装与构建：
 
-```bash
-sudo apt-get update
-sudo apt-get install -y git wget flex bison gperf python3 python3-pip python3-venv \
-  cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
 
-./scripts/setup_idf_ubuntu.sh
-./scripts/build_ubuntu.sh
-```
+### Ubuntu和macOS 安装，参照[MimiClaw](https://github.com/memovai/mimiclaw)
 
-</details>
-
-<details>
-<summary>macOS 安装</summary>
-
-建议基线：
-
-- macOS 12/13/14
-- Xcode Command Line Tools
-- Homebrew
-- Python >= 3.10
-- CMake >= 3.16
-- Ninja >= 1.10
-- Git >= 2.34
-- flex >= 2.6
-- bison >= 3.8
-- gperf >= 3.1
-- dfu-util >= 0.11
-- `libusb`、`libffi`、`openssl`
-
-macOS 安装与构建：
-
-```bash
-xcode-select --install
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-./scripts/setup_idf_macos.sh
-./scripts/build_macos.sh
-```
-
-</details>
 
 ### 配置
 
