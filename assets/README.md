@@ -201,69 +201,10 @@ idf.py -p COM5 flash monitor
 ### 现在开始聊天！
 
 
+<img src="assets\image12.png" alt="" width="480" />
+<img src="assets\image13.png" alt="" width="480" />
+<img src="assets\image14.png" alt="" width="480" />
 
-
-
-### 配置
-
-MimiClaw 使用**两层配置**：`mimi_secrets.h` 提供编译时默认值，串口 CLI 可在运行时覆盖。CLI 设置的值存在 NVS Flash 中，优先级高于编译时值。
-
-```bash
-cp main/mimi_secrets.h.example main/mimi_secrets.h
-```
-
-编辑 `main/mimi_secrets.h`：
-
-```c
-#define MIMI_SECRET_WIFI_SSID       "你的WiFi名"
-#define MIMI_SECRET_WIFI_PASS       "你的WiFi密码"
-#define MIMI_SECRET_TG_TOKEN        "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
-#define MIMI_SECRET_API_KEY         "sk-ant-api03-xxxxx"
-#define MIMI_SECRET_MODEL_PROVIDER  "anthropic"     // "anthropic" 或 "openai"
-#define MIMI_SECRET_SEARCH_KEY      ""              // 可选：Brave Search API key
-#define MIMI_SECRET_TAVILY_KEY      ""              // 可选：Tavily API key（优先）
-#define MIMI_SECRET_PROXY_HOST      "10.0.0.1"      // 可选：代理地址
-#define MIMI_SECRET_PROXY_PORT      "7897"           // 可选：代理端口
-```
-
-然后编译烧录：
-
-```bash
-# 完整编译（修改 mimi_secrets.h 后必须 fullclean）
-idf.py fullclean && idf.py build
-
-# 查找串口
-ls /dev/cu.usb*          # macOS
-ls /dev/ttyACM*          # Linux
-
-# 烧录并监控（将 PORT 替换为你的串口）
-# USB 转接器：大概率是 /dev/cu.usbmodem11401（macOS）或 /dev/ttyACM0（Linux）
-idf.py -p PORT flash monitor
-```
-
-> **注意：请插对 USB 口！** 大多数 ESP32-S3 开发板有两个 Type-C 接口，必须插标有 **USB** 的那个口（原生 USB Serial/JTAG），**不要**插标有 **COM** 的口（外部 UART 桥接）。插错口会导致烧录/监控失败。
->
-> <details>
-> <summary>查看参考图片</summary>
->
-> <img src="assets/esp32s3-usb-port.jpg" alt="请插 USB 口，不要插 COM 口" width="480" />
->
-> </details>
-
-### 代理配置（国内用户）
-
-在国内需要代理才能访问 Telegram 和 Anthropic API。MimiClaw 内置 HTTP CONNECT 隧道支持。
-
-**前提**：局域网内有一个支持 HTTP CONNECT 的代理（Clash Verge、V2Ray 等），并开启了「允许局域网连接」。
-
-可以在 `mimi_secrets.h` 中编译时设置，也可以通过串口 CLI 随时修改：
-
-```
-mimi> set_proxy 192.168.1.83 7897   # 设置代理
-mimi> clear_proxy                    # 清除代理
-```
-
-> **提示**：确保 ESP32-S3 和代理机器在同一局域网。Clash Verge 在「设置 → 允许局域网」中开启。
 
 ### CLI 命令（通过 UART/COM 口连接）
 
@@ -298,47 +239,6 @@ mimi> heartbeat_trigger           # 手动触发一次心跳检查
 mimi> cron_start                  # 立即启动 cron 调度器
 mimi> restart                     # 重启
 ```
-
-### USB (JTAG) 与 UART：哪个口做什么
-
-大多数 ESP32-S3 开发板有 **两个 USB-C 口**：
-
-| 端口 | 用途 |
-|------|------|
-| **USB**（JTAG） | `idf.py flash`、JTAG 调试 |
-| **COM**（UART） | **REPL 命令行**、串口控制台 |
-
-> **REPL 必须连接 UART（COM）口。** USB（JTAG）口不支持交互式 REPL 输入。
-
-<details>
-<summary>端口详情与推荐工作流</summary>
-
-| 端口 | 标注 | 协议 |
-|------|------|------|
-| **USB** | USB / JTAG | 原生 USB Serial/JTAG |
-| **COM** | UART / COM | 外置 UART 桥接芯片（CP2102/CH340） |
-
-ESP-IDF 控制台默认配置为 UART 输出（`CONFIG_ESP_CONSOLE_UART_DEFAULT=y`）。
-
-**同时连接两个口时：**
-
-- USB（JTAG）口负责烧录/下载，并提供辅助串口输出
-- UART（COM）口提供主要的交互式控制台，用于 REPL
-- macOS 下两个口都会显示为 `/dev/cu.usbmodem*` 或 `/dev/cu.usbserial-*`，用 `ls /dev/cu.usb*` 区分
-- Linux 下 USB（JTAG）通常是 `/dev/ttyACM0`，UART 通常是 `/dev/ttyUSB0`
-
-**推荐工作流：**
-
-```bash
-# 通过 USB（JTAG）口烧录
-idf.py -p /dev/cu.usbmodem11401 flash
-
-# 通过 UART（COM）口打开 REPL
-idf.py -p /dev/cu.usbserial-110 monitor
-# 或使用任意串口工具：screen、minicom、PuTTY，波特率 115200
-```
-
-</details>
 
 ## 记忆
 
@@ -391,26 +291,6 @@ MimiClaw 内置 cron 调度器，让 AI 可以自主安排任务。LLM 可以通
 - **心跳服务** — 定期检查任务文件，驱动 AI 自主执行
 - **工具调用** — ReAct Agent 循环，两种提供商均支持工具调用
 
-## 开发者
-
-技术细节在 `docs/` 文件夹：
-
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — 系统设计、模块划分、任务布局、内存分配、协议、Flash 分区
-- **[docs/TODO.md](docs/TODO.md)** — 功能差距和路线图
-- **[docs/WIFI_ONBOARDING_AP.md](docs/WIFI_ONBOARDING_AP.md)** — 说明本地 `MimiClaw-XXXX` onboarding / 管理热点的使用方式
-- **[docs/im-integration/](docs/im-integration/README.md)** — IM 通道集成指南（飞书等）
-
-## 贡献
-
-提交 Issue 或 Pull Request 前，请先阅读 **[CONTRIBUTING.md](CONTRIBUTING.md)**。
-
-## 贡献者
-
-感谢所有为 MimiClaw 做出贡献的开发者。
-
-<a href="https://github.com/memovai/mimiclaw/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=memovai/mimiclaw" alt="MimiClaw contributors" />
-</a>
 
 ## 许可证
 
@@ -418,14 +298,7 @@ MIT
 
 ## 致谢
 
-灵感来自 [OpenClaw](https://github.com/openclaw/openclaw) 和 [Nanobot](https://github.com/HKUDS/nanobot)。MimiClaw 为嵌入式硬件重新实现了核心 AI Agent 架构 — 没有 Linux，没有服务器，只有一颗 $5 的芯片。
+感谢 MimiClaw 的开发者。
 
-## Star History
+点击进入[MimiClaw](https://github.com/memovai/mimiclaw)主页。
 
-<a href="https://www.star-history.com/?repos=memovai%2Fmimiclaw&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/image?repos=memovai/mimiclaw&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/image?repos=memovai/mimiclaw&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/image?repos=memovai/mimiclaw&type=date&legend=top-left" />
- </picture>
-</a>
