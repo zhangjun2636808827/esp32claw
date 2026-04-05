@@ -42,6 +42,10 @@ static int s_ws_reconnect_nonce_ms = 30000;
 static int s_ws_service_id = 0;
 static bool s_ws_connected = false;
 
+#define FEISHU_WS_LIB_PING_INTERVAL_SEC  3600
+#define FEISHU_WS_POLL_DELAY_MS          200
+#define FEISHU_WS_RECONNECT_DELAY_MS     3000
+
 static void handle_message_event(cJSON *event);
 
 /* ── Message deduplication ─────────────────────────────────── */
@@ -616,10 +620,17 @@ static void feishu_ws_task(void *arg)
         esp_websocket_client_config_t ws_cfg = {
             .uri = s_ws_url,
             .buffer_size = 2048,
+            .task_name = "feishu_ws_client",
             .task_stack = MIMI_FEISHU_POLL_STACK,
+            .task_prio = MIMI_FEISHU_POLL_PRIO,
             .reconnect_timeout_ms = s_ws_reconnect_interval_ms,
             .network_timeout_ms = 10000,
-            .disable_auto_reconnect = false,
+            // Feishu itself uses an application-level ping/pong frame; leaving the
+            // websocket client's built-in ping timeout enabled eventually trips a
+            // false "no PONG received" disconnect and can wedge websocket_task.
+            .disable_auto_reconnect = true,
+            .disable_pingpong_discon = true,
+            .ping_interval_sec = FEISHU_WS_LIB_PING_INTERVAL_SEC,
             .crt_bundle_attach = esp_crt_bundle_attach,
         };
 
@@ -651,14 +662,14 @@ static void feishu_ws_task(void *arg)
             if (!esp_websocket_client_is_connected(s_ws_client) && !s_ws_connected) {
                 break;
             }
-            vTaskDelay(pdMS_TO_TICKS(200));
+            vTaskDelay(pdMS_TO_TICKS(FEISHU_WS_POLL_DELAY_MS));
         }
 
         esp_websocket_client_stop(s_ws_client);
         esp_websocket_client_destroy(s_ws_client);
         s_ws_client = NULL;
         s_ws_connected = false;
-        vTaskDelay(pdMS_TO_TICKS(3000));
+        vTaskDelay(pdMS_TO_TICKS(FEISHU_WS_RECONNECT_DELAY_MS));
     }
 }
 
