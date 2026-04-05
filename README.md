@@ -174,7 +174,7 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 # 完整编译（修改 mimi_secrets.h 后必须 fullclean）
 idf.py fullclean && idf.py build
 # 
-idf.py -p PORT flash monitor
+idf.py -p COM5 flash monitor
 ```
 
 <img src="assets\image4.png" alt="" width="480" />
@@ -188,7 +188,7 @@ idf.py -p PORT flash monitor
 <img src="assets\image7.png" alt="" width="480" />
 
 
-### 把usb线
+### 把usb线接到串口，打开MobaXterm
 
 ### 配置
 
