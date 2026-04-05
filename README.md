@@ -116,6 +116,19 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 
 <img src="assets\feishu6.png" alt="" width="480" />
 
+### 开启以下权限
+
+<img src="assets\feishu7.png" alt="" width="480" />
+
+### 配置事件订阅
+
+<img src="assets\feishu8.png" alt="" width="480" />
+
+### 发布应用
+
+<img src="assets\feishu9.png" alt="" width="480" />
+<img src="assets\feishu10.png" alt="" width="480" />
+
 ### 获取MiniMax信息
 
 ### Ubuntu和macOS 安装，参照[MimiClaw](https://github.com/memovai/mimiclaw)
