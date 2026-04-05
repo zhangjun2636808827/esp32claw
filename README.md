@@ -67,23 +67,23 @@ idf.py set-target esp32s3
 # 复制配置文件，所有的信息都填写在这个文件中
 cp main/mimi_secrets.h.example main/mimi_secrets.h
 ```
-<img src="assets\config.png" alt="" width="480" />
+<img src="assets\config.png" alt="" width="1080" />
 
 ### 获取[飞书](https://open.feishu.cn/app )信息
-<img src="assets\feishu.png" alt="" width="480" />
-<img src="assets\feishu2.png" alt="" width="480" />
+<img src="assets\feishu.png" alt="" width="1080" />
+<img src="assets\feishu2.png" alt="" width="1080" />
 
 ### 复制 App ID 和 App Secret 到 MIMI_SECRET_FEISHU_APP_ID 和 MIMI_SECRET_FEISHU_APP_SECRET
 
-<img src="assets\feishu3.png" alt="" width="480" />
+<img src="assets\feishu3.png" alt="" width="1080" />
 
 ### 创建机器人
 
-<img src="assets\feishu4.png" alt="" width="480" />
+<img src="assets\feishu4.png" alt="" width="1080" />
 
 ### 配置机器人权限
 
-<img src="assets\feishu5.png" alt="" width="480" />
+<img src="assets\feishu5.png" alt="" width="1080" />
 
 ```bash
 # 粘贴以下josn数据
@@ -115,24 +115,24 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 }
 ```
 
-<img src="assets\feishu6.png" alt="" width="480" />
+<img src="assets\feishu6.png" alt="" width="1080" />
 
 ### 开启以下权限
 
-<img src="assets\feishu7.png" alt="" width="480" />
+<img src="assets\feishu7.png" alt="" width="1080" />
 
 ### 配置事件订阅
 
-<img src="assets\feishu8.png" alt="" width="480" />
+<img src="assets\feishu8.png" alt="" width="1080" />
 
 ### 发布应用
 
-<img src="assets\feishu9.png" alt="" width="480" />
-<img src="assets\feishu10.png" alt="" width="480" />
+<img src="assets\feishu9.png" alt="" width="1080" />
+<img src="assets\feishu10.png" alt="" width="1080" />
 
 ### 飞书创建一个群聊，然后点击设置-> 群机器人 -> 添加 -> 选择你前面创建的机器人 -> 在群里@你的机器人并发送消息，例如“@esp32claw 帮我打开蓝色呼吸灯，周期为2s”
 
-<img src="assets\feishu11.png" alt="" width="480" />
+<img src="assets\feishu11.png" alt="" width="240" />
 
 ### 到这里飞书就配置完了，接下来配置[MiniMax](https://www.minimaxi.com/)信息
 
@@ -140,7 +140,7 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 
 ### 账户管理 -> Token Plan -> 复制 Token Plan Key 到 MIMI_SECRET_API_KEY
 
-<img src="assets\MiniMax1.png" alt="" width="480" />
+<img src="assets\MiniMax1.png" alt="" width="1080" />
 
 ```bash
 # 填写以下信息
@@ -152,21 +152,21 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 
 ### 配置WS2812B，打开mimiclaw-main\main\mimi_config.h文件
 
-<img src="assets\image8.png" alt="" width="480" />
+<img src="assets\image8.png" alt="" width="1080" />
 
 ### 接下来编译并烧写代码
 
 ### esp32开发板连接电脑，注意要接上烧录口
 
-<img src="assets\image.png" alt="" width="480" />
+<img src="assets\image.png" alt="" width="1080" />
 
 ### 打开设备管理器
 
-<img src="assets\image2.png" alt="" width="480" />
+<img src="assets\image2.png" alt="" width="240" />
 
 ### 得到你的烧录口接到了哪个端口
 
-<img src="assets\image3.png" alt="" width="480" />
+<img src="assets\image3.png" alt="" width="1080" />
 
 ### 可以看到我们的端口是COM5,接下来编译代码
 
@@ -177,33 +177,33 @@ idf.py fullclean && idf.py build
 idf.py -p COM5 flash monitor
 ```
 
-<img src="assets\image4.png" alt="" width="480" />
+<img src="assets\image4.png" alt="" width="1080" />
 
-<img src="assets\image5.png" alt="" width="480" />
+<img src="assets\image5.png" alt="" width="1080" />
 
 ### 出现以下表示编译和烧录成功
 
-<img src="assets\image6.png" alt="" width="480" />
+<img src="assets\image6.png" alt="" width="1080" />
 
-<img src="assets\image7.png" alt="" width="480" />
+<img src="assets\image7.png" alt="" width="1080" />
 
 
 ### 把usb线接到串口，打开MobaXterm(在MobaXterm/MobaXterm.exe)，按照以下步骤打开串口
 
-<img src="assets\image9.png" alt="" width="480" />
-<img src="assets\image10.png" alt="" width="480" />
+<img src="assets\image9.png" alt="" width="1080" />
+<img src="assets\image10.png" alt="" width="1080" />
 
 ### 按下esp32开发板上的复位按键
 
-<img src="assets\image11.png" alt="" width="480" />
+<img src="assets\image11.png" alt="" width="1080" />
 
 
 ### 现在开始聊天！
 
 
-<img src="assets\image12.jpg" alt="" width="480" />
+<img src="assets\image12.jpg" alt="" width="240" />
 
-<img src="assets\image13.jpg" alt="" width="480" />
+<img src="assets\image13.jpg" alt="" width="240" />
 
 <img src="assets\image14.png" alt="" width="480" />
 

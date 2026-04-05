@@ -58,7 +58,7 @@ idf.py --help
 # If you see the expected help output, ESP-IDF has been installed successfully in this terminal
 ```
 
-<img src="assets/install.png" alt="ESP-IDF installation" width="480" />
+<img src="assets/install.png" alt="ESP-IDF installation" width="1080" />
 
 ```bash
 # Enter the esp32claw directory
@@ -69,24 +69,24 @@ idf.py set-target esp32s3
 cp main/mimi_secrets.h.example main/mimi_secrets.h
 ```
 
-<img src="assets/config.png" alt="Project configuration" width="480" />
+<img src="assets/config.png" alt="Project configuration" width="1080" />
 
 ### Get your [Feishu](https://open.feishu.cn/app) credentials
 
-<img src="assets/feishu.png" alt="Feishu setup step 1" width="480" />
-<img src="assets/feishu2.png" alt="Feishu setup step 2" width="480" />
+<img src="assets/feishu.png" alt="Feishu setup step 1" width="1080" />
+<img src="assets/feishu2.png" alt="Feishu setup step 2" width="1080" />
 
 ### Copy App ID and App Secret into `MIMI_SECRET_FEISHU_APP_ID` and `MIMI_SECRET_FEISHU_APP_SECRET`
 
-<img src="assets/feishu3.png" alt="Feishu app credentials" width="480" />
+<img src="assets/feishu3.png" alt="Feishu app credentials" width="1080" />
 
 ### Create a bot
 
-<img src="assets/feishu4.png" alt="Create Feishu bot" width="480" />
+<img src="assets/feishu4.png" alt="Create Feishu bot" width="1080" />
 
 ### Configure bot permissions
 
-<img src="assets/feishu5.png" alt="Configure Feishu bot permissions" width="480" />
+<img src="assets/feishu5.png" alt="Configure Feishu bot permissions" width="1080" />
 
 ```json
 {
@@ -120,26 +120,26 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 }
 ```
 
-<img src="assets/feishu6.png" alt="Feishu permission JSON" width="480" />
+<img src="assets/feishu6.png" alt="Feishu permission JSON" width="1080" />
 
 ### Enable the following permissions
 
-<img src="assets/feishu7.png" alt="Enable Feishu permissions" width="480" />
+<img src="assets/feishu7.png" alt="Enable Feishu permissions" width="1080" />
 
 ### Configure event subscriptions
 
-<img src="assets/feishu8.png" alt="Configure event subscriptions" width="480" />
+<img src="assets/feishu8.png" alt="Configure event subscriptions" width="1080" />
 
 ### Publish the app
 
-<img src="assets/feishu9.png" alt="Publish Feishu app step 1" width="480" />
-<img src="assets/feishu10.png" alt="Publish Feishu app step 2" width="480" />
+<img src="assets/feishu9.png" alt="Publish Feishu app step 1" width="1080" />
+<img src="assets/feishu10.png" alt="Publish Feishu app step 2" width="1080" />
 
 ### Create a group chat in Feishu, then go to Settings -> Group Bots -> Add -> Select the bot you created earlier -> Mention your bot in the group and send a message, for example:
 
 `@esp32claw Turn on a blue breathing light with a 2s cycle`
 
-<img src="assets/feishu11.png" alt="Use the bot in a Feishu group" width="480" />
+<img src="assets/feishu11.png" alt="Use the bot in a Feishu group" width="240" />
 
 ### Feishu setup is now complete. Next, configure your [MiniMax](https://www.minimaxi.com/) credentials
 
@@ -147,7 +147,7 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 
 ### Go to Account Management -> Token Plan -> Copy the Token Plan Key into `MIMI_SECRET_API_KEY`
 
-<img src="assets/MiniMax1.png" alt="MiniMax token plan key" width="480" />
+<img src="assets/MiniMax1.png" alt="MiniMax token plan key" width="1080" />
 
 ```c
 #define MIMI_SECRET_MODEL           "MiniMax-M2.7" // Model name, see https://minimaxi.com/docs/models
@@ -158,21 +158,21 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 
 ### Configure WS2812B by opening `mimiclaw-main/main/mimi_config.h`
 
-<img src="assets/image8.png" alt="WS2812B configuration" width="480" />
+<img src="assets/image8.png" alt="WS2812B configuration" width="1080" />
 
 ### Next, build and flash the firmware
 
 ### Connect the ESP32 development board to your computer, and make sure to use the flashing port
 
-<img src="assets/image.png" alt="Connect ESP32 board" width="480" />
+<img src="assets/image.png" alt="Connect ESP32 board" width="1080" />
 
 ### Open Device Manager
 
-<img src="assets/image2.png" alt="Open Device Manager" width="480" />
+<img src="assets/image2.png" alt="Open Device Manager" width="240" />
 
 ### Find which COM port your board is connected to
 
-<img src="assets/image3.png" alt="Find COM port" width="480" />
+<img src="assets/image3.png" alt="Find COM port" width="1080" />
 
 ### In this example, the port is `COM5`. Now build the firmware
 
@@ -183,27 +183,27 @@ idf.py fullclean && idf.py build
 idf.py -p COM5 flash monitor
 ```
 
-<img src="assets/image4.png" alt="Build output" width="480" />
-<img src="assets/image5.png" alt="Flash output" width="480" />
+<img src="assets/image4.png" alt="Build output" width="1080" />
+<img src="assets/image5.png" alt="Flash output" width="1080" />
 
 ### If you see the following, compilation and flashing were successful
 
-<img src="assets/image6.png" alt="Successful build and flash 1" width="480" />
-<img src="assets/image7.png" alt="Successful build and flash 2" width="480" />
+<img src="assets/image6.png" alt="Successful build and flash 1" width="1080" />
+<img src="assets/image7.png" alt="Successful build and flash 2" width="1080" />
 
 ### Connect the USB cable to the serial port, open MobaXterm (`MobaXterm/MobaXterm.exe`), and follow the steps below to open the serial port
 
-<img src="assets/image9.png" alt="Open serial port in MobaXterm step 1" width="480" />
-<img src="assets/image10.png" alt="Open serial port in MobaXterm step 2" width="480" />
+<img src="assets/image9.png" alt="Open serial port in MobaXterm step 1" width="1080" />
+<img src="assets/image10.png" alt="Open serial port in MobaXterm step 2" width="1080" />
 
 ### Press the reset button on the ESP32 development board
 
-<img src="assets/image11.png" alt="Reset ESP32 board" width="480" />
+<img src="assets/image11.png" alt="Reset ESP32 board" width="1080" />
 
 ### Now start chatting!
 
-<img src="assets/image12.jpg" alt="Chat example 1" width="480" />
-<img src="assets/image13.jpg" alt="Chat example 2" width="480" />
+<img src="assets/image12.jpg" alt="Chat example 1" width="240" />
+<img src="assets/image13.jpg" alt="Chat example 2" width="240" />
 <img src="assets/image14.png" alt="Chat example 3" width="480" />
 
 ### CLI Commands (via UART/COM port)
