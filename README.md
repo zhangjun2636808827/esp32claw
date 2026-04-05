@@ -68,10 +68,55 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 ```
 <img src="assets\config.png" alt="" width="480" />
 
+### 获取[飞书](https://open.feishu.cn/app )信息
+<img src="assets\feishu.png" alt="" width="480" />
+<img src="assets\feishu2.png" alt="" width="480" />
 
+### 复制 App ID 和 App Secret 到 MIMI_SECRET_FEISHU_APP_ID 和 MIMI_SECRET_FEISHU_APP_SECRET
 
+<img src="assets\feishu3.png" alt="" width="480" />
 
+### 创建机器人
 
+<img src="assets\feishu4.png" alt="" width="480" />
+
+### 配置机器人权限
+
+<img src="assets\feishu5.png" alt="" width="480" />
+
+```bash
+# 粘贴以下josn数据
+
+{
+  "scopes": {
+    "tenant": [
+      "aily:file:read",
+      "aily:file:write",
+      "application:application.app_message_stats.overview:readonly",
+      "application:application:self_manage",
+      "application:bot.menu:write",
+      "cardkit:card:read",
+      "cardkit:card:write",
+      "contact:user.employee_id:readonly",
+      "corehr:file:download",
+      "event:ip_list",
+      "im:chat.access_event.bot_p2p_chat:read",
+      "im:chat.members:bot_access",
+      "im:message",
+      "im:message.group_at_msg:readonly",
+      "im:message.p2p_msg:readonly",
+      "im:message:readonly",
+      "im:message:send_as_bot",
+      "im:resource"
+    ],
+    "user": ["aily:file:read", "aily:file:write", "im:chat.access_event.bot_p2p_chat:read"]
+  }
+}
+```
+
+<img src="assets\feishu6.png" alt="" width="480" />
+
+### 获取MiniMax信息
 
 ### Ubuntu和macOS 安装，参照[MimiClaw](https://github.com/memovai/mimiclaw)
 
