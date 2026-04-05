@@ -57,7 +57,7 @@ export.bat
 idf.py --help
 # 得到以下结果表明在这个终端安装成功
 ```
-<img src="assets/install.png" alt="" width="480" />
+<img src="assets/install.png" alt="" width="1080" />
 
 ```bash
 # 进入esp32claw目录
