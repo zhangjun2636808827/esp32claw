@@ -35,6 +35,7 @@
 - 一个 **飞书机器人**
 - 一个 **大模型API**
 
+### Ubuntu和macOS 安装，参照[MimiClaw](https://github.com/memovai/mimiclaw)
 ### Windows11 安装
 
 ```bash
@@ -129,10 +130,65 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 <img src="assets\feishu9.png" alt="" width="480" />
 <img src="assets\feishu10.png" alt="" width="480" />
 
-### 获取MiniMax信息
+### 飞书创建一个群聊，然后点击设置-> 群机器人 -> 添加 -> 选择你前面创建的机器人 -> 在群里@你的机器人并发送消息，例如“@esp32claw 帮我打开蓝色呼吸灯，周期为2s”
 
-### Ubuntu和macOS 安装，参照[MimiClaw](https://github.com/memovai/mimiclaw)
+<img src="assets\feishu11.png" alt="" width="480" />
 
+### 到这里飞书就配置完了，接下来配置[MiniMax](https://www.minimaxi.com/)信息
+
+### 订阅一个[MiniMax](https://www.minimaxi.com/)的29RMB的Starter套餐
+
+### 账户管理 -> Token Plan -> 复制 Token Plan Key 到 MIMI_SECRET_API_KEY
+
+<img src="assets\MiniMax1.png" alt="" width="480" />
+
+```bash
+# 填写以下信息
+#define MIMI_SECRET_MODEL           "MiniMax-M2.7"//模型名称，详见https://minimaxi.com/docs/models
+#define MIMI_SECRET_MODEL_PROVIDER  "openai"//提供者，默认为Anthropic，如果使用MiniMax系列模型请设置为"openai"
+```
+
+### 到这里就完成了mimi_secrets.h文件所有信息的填写，
+
+### 配置WS2812B，打开mimiclaw-main\main\mimi_config.h文件
+
+<img src="assets\image8.png" alt="" width="480" />
+
+### 接下来编译并烧写代码
+
+### esp32开发板连接电脑，注意要接上烧录口
+
+<img src="assets\image.png" alt="" width="480" />
+
+### 打开设备管理器
+
+<img src="assets\image2.png" alt="" width="480" />
+
+### 得到你的烧录口接到了哪个端口
+
+<img src="assets\image3.png" alt="" width="480" />
+
+### 可以看到我们的端口是COM5,接下来编译代码
+
+```bash
+# 完整编译（修改 mimi_secrets.h 后必须 fullclean）
+idf.py fullclean && idf.py build
+# 
+idf.py -p PORT flash monitor
+```
+
+<img src="assets\image4.png" alt="" width="480" />
+
+<img src="assets\image5.png" alt="" width="480" />
+
+### 出现以下表示编译和烧录成功
+
+<img src="assets\image6.png" alt="" width="480" />
+
+<img src="assets\image7.png" alt="" width="480" />
+
+
+### 把usb线
 
 ### 配置
 
