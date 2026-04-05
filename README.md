@@ -188,7 +188,21 @@ idf.py -p COM5 flash monitor
 <img src="assets\image7.png" alt="" width="480" />
 
 
-### 把usb线接到串口，打开MobaXterm
+### 把usb线接到串口，打开MobaXterm(在MobaXterm/MobaXterm.exe)，按照以下步骤打开串口
+
+<img src="assets\image9.png" alt="" width="480" />
+<img src="assets\image10.png" alt="" width="480" />
+
+### 按下esp32开发板上的复位按键
+
+<img src="assets\image11.png" alt="" width="480" />
+
+
+### 现在开始聊天！
+
+
+
+
 
 ### 配置
 
