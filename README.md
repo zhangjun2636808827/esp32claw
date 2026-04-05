@@ -1,7 +1,7 @@
 # Esp32Claw: 在Esp32s3上部署ai助理
 
 
-<p align="center">
+<p align="left">
   <strong><a href="README.md">English</a> | <a href="README_CN.md">中文</a> </strong>
 </p>
 
