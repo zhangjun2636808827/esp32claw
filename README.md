@@ -2,7 +2,7 @@
 
 
 <p align="left">
-  <strong><a href="README.md">English</a> | <a href="README_CN.md">中文</a> </strong>
+  <strong><a href="README_EN.md">English</a> | <a href="README.md">中文</a> </strong>
 </p>
 
 **本项目基于[MimiClaw](https://github.com/memovai/mimiclaw)，在价值25左右的esp32s3开发板上部署本地AI助手，可以实现飞书控制GPIO、读写本地文件、控制ws2812b实现呼吸灯等功能**
@@ -201,8 +201,10 @@ idf.py -p COM5 flash monitor
 ### 现在开始聊天！
 
 
-<img src="assets\image12.png" alt="" width="480" />
-<img src="assets\image13.png" alt="" width="480" />
+<img src="assets\image12.jpg" alt="" width="480" />
+
+<img src="assets\image13.jpg" alt="" width="480" />
+
 <img src="assets\image14.png" alt="" width="480" />
 
 
