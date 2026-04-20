@@ -1,10 +1,10 @@
-# Wi-Fi AP Onboarding Guide
+﻿# Wi-Fi AP Onboarding Guide
 
-This guide documents the Wi-Fi onboarding flow for firmware builds that include the MimiClaw onboarding portal.
+This guide documents the Wi-Fi onboarding flow for firmware builds that include the esp32claw onboarding portal.
 
 ## What It Does
 
-When onboarding is enabled, MimiClaw can expose a local Wi-Fi access point such as `MimiClaw-XXXX` and serve a configuration page at `http://192.168.4.1`.
+When onboarding is enabled, esp32claw can expose a local Wi-Fi access point such as `esp32claw-XXXX` and serve a configuration page at `http://192.168.4.1`.
 
 Typical uses:
 
@@ -16,12 +16,12 @@ Typical uses:
 
 - a firmware build with the Wi-Fi onboarding portal enabled
 - an ESP32-S3 board powered on and booted normally
-- a phone or laptop that can join the temporary `MimiClaw-XXXX` network
+- a phone or laptop that can join the temporary `esp32claw-XXXX` network
 
 ## First-Time Setup
 
 1. Power on the device.
-2. Wait for the onboarding hotspot `MimiClaw-XXXX` to appear.
+2. Wait for the onboarding hotspot `esp32claw-XXXX` to appear.
 3. Join that hotspot from your phone or laptop.
 4. Open `http://192.168.4.1` if the captive page does not open automatically.
 5. Fill in at least:
@@ -40,7 +40,7 @@ Typical uses:
 
 ## Updating Settings Later
 
-If the firmware keeps the admin AP online after normal Wi-Fi connection, you can reconnect to `MimiClaw-XXXX` later and open `http://192.168.4.1` again.
+If the firmware keeps the admin AP online after normal Wi-Fi connection, you can reconnect to `esp32claw-XXXX` later and open `http://192.168.4.1` again.
 
 The page should prefill the currently effective configuration so you can edit only the fields you want to change.
 
@@ -72,7 +72,7 @@ mimi> config_reset
 
 ## Troubleshooting
 
-### No `MimiClaw-XXXX` hotspot appears
+### No `esp32claw-XXXX` hotspot appears
 
 - verify that the running firmware actually includes the onboarding portal
 - if the device already connects successfully and does not keep the admin AP online, clear Wi-Fi config and reboot
@@ -98,3 +98,4 @@ To return to build-time defaults:
 - The onboarding AP is typically local-only and intended for nearby configuration.
 - Current onboarding implementations may use an open AP for simplicity, so avoid leaving it exposed longer than necessary.
 - If your deployment needs stronger local protection, add an AP password before using the flow in production.
+

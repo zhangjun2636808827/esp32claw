@@ -1,6 +1,6 @@
-# Feishu / Lark Bot Configuration Guide
+﻿# Feishu / Lark Bot Configuration Guide
 
-This guide walks through setting up a Feishu (or Lark) bot to work with MimiClaw, turning your ESP32-S3 into a Feishu-connected AI assistant.
+This guide walks through setting up a Feishu (or Lark) bot to work with esp32claw, turning your ESP32-S3 into a Feishu-connected AI assistant.
 
 ## Table of Contents
 
@@ -9,7 +9,7 @@ This guide walks through setting up a Feishu (or Lark) bot to work with MimiClaw
 - [Step 1: Create a Feishu App](#step-1-create-a-feishu-app)
 - [Step 2: Configure App Permissions](#step-2-configure-app-permissions)
 - [Step 3: Set Up Event Subscription](#step-3-set-up-event-subscription)
-- [Step 4: Configure MimiClaw](#step-4-configure-mimiclaw)
+- [Step 4: Configure esp32claw](#step-4-configure-mimiclaw)
 - [Step 5: Network Setup](#step-5-network-setup)
 - [Step 6: Publish and Test](#step-6-publish-and-test)
 - [Architecture](#architecture)
@@ -19,10 +19,10 @@ This guide walks through setting up a Feishu (or Lark) bot to work with MimiClaw
 
 ## Overview
 
-MimiClaw supports Feishu as a messaging channel alongside Telegram and WebSocket. The Feishu integration uses:
+esp32claw supports Feishu as a messaging channel alongside Telegram and WebSocket. The Feishu integration uses:
 
 - **Webhook receiver** — the ESP32 runs an HTTP server on port 18790 to receive messages from Feishu
-- **Send API** — MimiClaw sends replies via Feishu's REST API (`/im/v1/messages`)
+- **Send API** — esp32claw sends replies via Feishu's REST API (`/im/v1/messages`)
 - **Tenant access token** — automatic token management with background refresh
 
 Both **direct messages (P2P)** and **group chats** are supported.
@@ -31,7 +31,7 @@ Both **direct messages (P2P)** and **group chats** are supported.
 
 - A Feishu account (sign up at [feishu.cn](https://www.feishu.cn)) or a Lark account ([larksuite.com](https://www.larksuite.com))
 - Admin access to create apps on [Feishu Open Platform](https://open.feishu.cn/) (or [Lark Developer](https://open.larksuite.com/))
-- MimiClaw flashed on an ESP32-S3 with network access
+- esp32claw flashed on an ESP32-S3 with network access
 - The ESP32 must be reachable from the internet (see [Network Setup](#step-5-network-setup))
 
 ## Step 1: Create a Feishu App
@@ -39,12 +39,12 @@ Both **direct messages (P2P)** and **group chats** are supported.
 1. Go to [Feishu Open Platform](https://open.feishu.cn/) and sign in
 2. Click **Create Custom App** (or "Create App" on Lark)
 3. Fill in the app details:
-   - **App Name**: Choose a name (e.g., "MimiClaw Bot")
+   - **App Name**: Choose a name (e.g., "esp32claw Bot")
    - **App Description**: Brief description of your bot
    - **App Icon**: Upload an icon (optional)
 4. After creation, you will see your **App ID** and **App Secret** on the app's **Credentials & Basic Info** page
 
-> **Important:** Save the **App ID** (`cli_xxxxxxxxxxxxxx`) and **App Secret** (`xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`). You will need these to configure MimiClaw.
+> **Important:** Save the **App ID** (`cli_xxxxxxxxxxxxxx`) and **App Secret** (`xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`). You will need these to configure esp32claw.
 
 ## Step 2: Configure App Permissions
 
@@ -80,7 +80,7 @@ http://<ESP32_IP>:18790/feishu/events
 Replace `<ESP32_IP>` with your ESP32's public IP or domain name.
 
 3. Click **Save** — Feishu will send a verification challenge to the URL
-4. MimiClaw automatically responds to the URL verification challenge, so this should succeed if the ESP32 is reachable
+4. esp32claw automatically responds to the URL verification challenge, so this should succeed if the ESP32 is reachable
 
 ### Subscribe to Events
 
@@ -103,11 +103,11 @@ In the event subscription settings, you can optionally configure:
 - **Verification Token** — used to verify that events come from Feishu
 - **Encrypt Key** — encrypts event payloads
 
-MimiClaw currently does not verify these tokens, so you can leave them empty for simplicity. For production use, consider implementing verification.
+esp32claw currently does not verify these tokens, so you can leave them empty for simplicity. For production use, consider implementing verification.
 
-## Step 4: Configure MimiClaw
+## Step 4: Configure esp32claw
 
-You need to provide the **App ID** and **App Secret** to MimiClaw.
+You need to provide the **App ID** and **App Secret** to esp32claw.
 
 ### Option 1: Build-time Configuration
 
@@ -294,7 +294,7 @@ These can be found in `main/mimi_config.h`:
 
 ### Messages are truncated
 
-Feishu has a 4096-character limit per message. MimiClaw automatically chunks long messages, but if you see issues, check the serial output for chunking errors.
+Feishu has a 4096-character limit per message. esp32claw automatically chunks long messages, but if you see issues, check the serial output for chunking errors.
 
 ### Bot works in DM but not in groups
 
@@ -305,7 +305,7 @@ Feishu has a 4096-character limit per message. MimiClaw automatically chunks lon
 ### Event subscription shows errors in Feishu console
 
 - Feishu retries failed events up to 5 times with exponential backoff
-- MimiClaw deduplicates retried events, so duplicate processing is not a concern
+- esp32claw deduplicates retried events, so duplicate processing is not a concern
 - If events consistently fail, check the ESP32's network connectivity
 
 ## References
@@ -316,3 +316,4 @@ Feishu has a 4096-character limit per message. MimiClaw automatically chunks lon
 - [Feishu Event Subscription Guide](https://open.feishu.cn/document/server-docs/event-subscription/event-subscription-guide)
 - [Lark Developer Documentation](https://open.larksuite.com/document/home/index) (international version)
 - [Volcengine OpenClaw Deployment Guide](https://www.volcengine.com/docs/6396/2189942) (Chinese)
+

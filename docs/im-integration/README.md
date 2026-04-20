@@ -1,6 +1,6 @@
-# IM Integration Guides
+﻿# IM Integration Guides
 
-Configuration guides for MimiClaw's instant messaging channel integrations.
+Configuration guides for esp32claw's instant messaging channel integrations.
 
 ## Guides
 
@@ -10,7 +10,7 @@ Configuration guides for MimiClaw's instant messaging channel integrations.
 
 ## Overview
 
-MimiClaw supports multiple IM channels for interacting with the AI agent. Each guide below walks through obtaining API credentials, configuring MimiClaw (build-time or runtime), and verifying the integration.
+esp32claw supports multiple IM channels for interacting with the AI agent. Each guide below walks through obtaining API credentials, configuring esp32claw (build-time or runtime), and verifying the integration.
 
 All credentials can be set in two ways:
 
@@ -18,3 +18,4 @@ All credentials can be set in two ways:
 2. **Runtime** — use serial CLI commands (saved to NVS flash, no rebuild needed)
 
 See [mimi_secrets.h.example](../../main/mimi_secrets.h.example) for the full list of configurable secrets.
+

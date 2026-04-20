@@ -1,17 +1,17 @@
-# Tavily Web Search Configuration Guide
+﻿# Tavily Web Search Configuration Guide
 
 <p align="center">
   <img src="images/tavily-og.png" alt="Tavily - Search Engine for AI Agents" width="600" />
 </p>
 
-[Tavily](https://tavily.com) is a real-time search engine designed for AI agents and RAG workflows. MimiClaw uses Tavily as the **preferred** web search provider (with Brave Search as a fallback).
+[Tavily](https://tavily.com) is a real-time search engine designed for AI agents and RAG workflows. esp32claw uses Tavily as the **preferred** web search provider (with Brave Search as a fallback).
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Getting an API Key](#getting-an-api-key)
-- [Configuring MimiClaw](#configuring-mimiclaw)
-- [How It Works in MimiClaw](#how-it-works-in-mimiclaw)
+- [Configuring esp32claw](#configuring-mimiclaw)
+- [How It Works in esp32claw](#how-it-works-in-mimiclaw)
 - [API Details](#api-details)
 - [Pricing](#pricing)
 - [Rate Limits](#rate-limits)
@@ -19,7 +19,7 @@
 
 ## Overview
 
-MimiClaw's `web_search` tool allows the AI agent to search the internet for real-time information. When a Tavily API key is configured, MimiClaw will use Tavily as the search provider. If no Tavily key is set but a Brave Search key exists, it falls back to Brave Search.
+esp32claw's `web_search` tool allows the AI agent to search the internet for real-time information. When a Tavily API key is configured, esp32claw will use Tavily as the search provider. If no Tavily key is set but a Brave Search key exists, it falls back to Brave Search.
 
 **Why Tavily?**
 
@@ -37,7 +37,7 @@ MimiClaw's `web_search` tool allows the AI agent to search the internet for real
 
 Your API key will look like: `tvly-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
 
-## Configuring MimiClaw
+## Configuring esp32claw
 
 There are two ways to configure the Tavily API key:
 
@@ -87,9 +87,9 @@ mimi> config_show
 
 You should see `tavily_key: tvly-****` (masked) in the output.
 
-## How It Works in MimiClaw
+## How It Works in esp32claw
 
-When the AI agent needs to search the web, it calls the `web_search` tool. MimiClaw selects the search provider with this priority:
+When the AI agent needs to search the web, it calls the `web_search` tool. esp32claw selects the search provider with this priority:
 
 ```
 1. Tavily (if MIMI_SECRET_TAVILY_KEY is set)  <-- preferred
@@ -106,7 +106,7 @@ User asks a question requiring web info
 Agent decides to call web_search tool
         |
         v
-MimiClaw sends POST to https://api.tavily.com/search
+esp32claw sends POST to https://api.tavily.com/search
   - Authorization: Bearer tvly-xxxxx
   - Body: {"query": "...", "max_results": 5, "search_depth": "basic"}
         |
@@ -121,7 +121,7 @@ Each `basic` search costs **1 API credit**. With the free plan's 1,000 credits/m
 
 ## API Details
 
-MimiClaw uses the Tavily Search API endpoint:
+esp32claw uses the Tavily Search API endpoint:
 
 | Parameter | Value |
 |-----------|-------|
@@ -129,7 +129,7 @@ MimiClaw uses the Tavily Search API endpoint:
 | **Auth** | `Authorization: Bearer <API_KEY>` |
 | **Content-Type** | `application/json` |
 
-### Request Body (as sent by MimiClaw)
+### Request Body (as sent by esp32claw)
 
 | Field | Type | Value | Description |
 |-------|------|-------|-------------|
@@ -178,7 +178,7 @@ Tavily offers a generous free tier and several paid plans:
 - `basic` search depth: **1 credit**
 - `advanced` search depth: **2 credits**
 
-MimiClaw uses `basic` by default, so each search = 1 credit.
+esp32claw uses `basic` by default, so each search = 1 credit.
 
 ## Rate Limits
 
@@ -222,3 +222,4 @@ Tavily's `basic` search depth is optimized for speed. The quality is generally s
 - [Tavily API Credits](https://docs.tavily.com/documentation/api-credits)
 - [Tavily Rate Limits](https://docs.tavily.com/documentation/rate-limits)
 - [Tavily Playground](https://app.tavily.com/playground)
+

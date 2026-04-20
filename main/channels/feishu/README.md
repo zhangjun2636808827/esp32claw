@@ -1,6 +1,6 @@
-# Feishu/Lark Bot Integration
+﻿# Feishu/Lark Bot Integration
 
-This directory contains the Feishu bot integration for MimiClaw.
+This directory contains the Feishu bot integration for esp32claw.
 
 ## Features
 
@@ -83,3 +83,4 @@ Feishu API
 - [Feishu Open Platform Docs](https://open.feishu.cn/document/home/index)
 - [Message API](https://open.feishu.cn/document/server-docs/im-v1/message/create)
 - [Long-connection Event Subscription](https://open.feishu.cn/document/server-docs/event-subscription/long-connection)
+

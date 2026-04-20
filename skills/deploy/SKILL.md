@@ -1,11 +1,11 @@
----
+﻿---
 name: deploy
-description: Deploy MimiClaw firmware to an ESP32-S3 board. Covers prerequisites, configuration, build, flash, verification, and troubleshooting.
+description: Deploy esp32claw firmware to an ESP32-S3 board. Covers prerequisites, configuration, build, flash, verification, and troubleshooting.
 ---
 
-# Deploy MimiClaw
+# Deploy esp32claw
 
-End-to-end guide for deploying MimiClaw to an ESP32-S3 dev board.
+End-to-end guide for deploying esp32claw to an ESP32-S3 dev board.
 
 ## Prerequisites
 
@@ -31,8 +31,8 @@ End-to-end guide for deploying MimiClaw to an ESP32-S3 dev board.
 ## Step 1: Clone and Set Target
 
 ```bash
-git clone https://github.com/memovai/mimiclaw.git
-cd mimiclaw
+git clone https://github.com/zhangjun2636808827/esp32claw.git
+cd esp32claw
 idf.py set-target esp32s3
 ```
 
@@ -112,7 +112,7 @@ idf.py -p /dev/cu.usbmodem1101 flash monitor
 
 The monitor shows boot logs. Look for:
 ```
-I (xxx) mimi: MimiClaw - ESP32-S3 AI Agent
+I (xxx) mimi: esp32claw - ESP32-S3 AI Agent
 I (xxx) mimi: PSRAM free: ~8000000 bytes
 I (xxx) wifi: WiFi connected: 192.168.x.x
 I (xxx) telegram: Telegram bot token loaded
@@ -158,7 +158,7 @@ After initial USB flash, future updates can be done over WiFi:
    ```
 3. Send to your bot on Telegram or use the OTA CLI command with the URL:
    ```
-   http://YOUR_PC_IP:8080/mimiclaw.bin
+   http://YOUR_PC_IP:8080/esp32claw.bin
    ```
 
 ## Flash Layout
@@ -184,3 +184,4 @@ After initial USB flash, future updates can be done over WiFi:
 | SPIFFS mount failed | First boot or corruption | Normal on first boot (auto-formats) |
 | Port busy/not found | Wrong port or cable | Try different USB port/cable, check `ls /dev/cu.usb*` |
 | Boot loop | Firmware crash | Flash via USB again, check serial logs for crash info |
+

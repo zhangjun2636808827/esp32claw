@@ -1,3 +1,3 @@
 # Long-term Memory
 
-(empty - MimiClaw will write memories here as it learns)
+(empty - esp32claw will write memories here as it learns)

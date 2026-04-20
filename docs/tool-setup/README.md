@@ -1,10 +1,10 @@
-# Tool Setup Guides
+﻿# Tool Setup Guides
 
-Configuration guides for MimiClaw's external service integrations.
+Configuration guides for esp32claw's external service integrations.
 
 Related local setup guide:
 
-- [Wi-Fi AP Onboarding Guide](../WIFI_ONBOARDING_AP.md) — configure firmware builds that expose the local `MimiClaw-XXXX` onboarding/admin access point
+- [Wi-Fi AP Onboarding Guide](../WIFI_ONBOARDING_AP.md) — configure firmware builds that expose the local `esp32claw-XXXX` onboarding/admin access point
 
 ## Guides
 
@@ -14,7 +14,7 @@ Related local setup guide:
 
 ## Overview
 
-MimiClaw integrates with external services to extend its capabilities. Each guide below walks through obtaining API credentials, configuring MimiClaw (build-time or runtime), and verifying the integration.
+esp32claw integrates with external services to extend its capabilities. Each guide below walks through obtaining API credentials, configuring esp32claw (build-time or runtime), and verifying the integration.
 
 All credentials can be set in two ways:
 
@@ -22,3 +22,4 @@ All credentials can be set in two ways:
 2. **Runtime** — use serial CLI commands (saved to NVS flash, no rebuild needed)
 
 See [mimi_secrets.h.example](../../main/mimi_secrets.h.example) for the full list of configurable secrets.
+

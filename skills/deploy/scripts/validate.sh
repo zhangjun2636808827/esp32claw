@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MimiClaw Deployment Validator
+# esp32claw Deployment Validator
 # Usage: ./skills/deploy/scripts/validate.sh
 #
 # Checks that all prerequisites are met before building.
@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 cd "$PROJECT_ROOT"
 
-echo "MimiClaw Deployment Validator"
+echo "esp32claw Deployment Validator"
 echo "============================="
 echo ""
 

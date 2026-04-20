@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-# MimiClaw Quick Deploy Script
+﻿#!/usr/bin/env bash
+# esp32claw Quick Deploy Script
 # Usage: ./skills/deploy/scripts/deploy.sh [port]
 #
 # This script handles the full build-flash cycle:
@@ -25,7 +25,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 cd "$PROJECT_ROOT"
 
-info "MimiClaw Deploy — project: $PROJECT_ROOT"
+info "esp32claw Deploy — project: $PROJECT_ROOT"
 
 # Check ESP-IDF
 if ! command -v idf.py &>/dev/null; then
@@ -53,12 +53,12 @@ info "Building firmware (fullclean)..."
 idf.py fullclean >/dev/null 2>&1 || true
 idf.py build 2>&1 | tail -5
 
-if [ ! -f build/mimiclaw.bin ]; then
+if [ ! -f build/esp32claw.bin ]; then
     error "Build failed — check errors above"
 fi
 
-BIN_SIZE=$(stat -f%z build/mimiclaw.bin 2>/dev/null || stat -c%s build/mimiclaw.bin 2>/dev/null)
-info "Firmware built: build/mimiclaw.bin ($(( BIN_SIZE / 1024 )) KB)"
+BIN_SIZE=$(stat -f%z build/esp32claw.bin 2>/dev/null || stat -c%s build/esp32claw.bin 2>/dev/null)
+info "Firmware built: build/esp32claw.bin ($(( BIN_SIZE / 1024 )) KB)"
 
 # Detect serial port
 PORT="${1:-}"
@@ -87,3 +87,4 @@ info "Opening serial monitor (Ctrl+] to exit)..."
 echo ""
 
 idf.py -p "$PORT" monitor
+

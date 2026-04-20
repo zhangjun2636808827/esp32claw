@@ -1,14 +1,14 @@
-# Esp32Claw: 在Esp32s3上部署ai助理
+﻿# Esp32Claw: 在Esp32s3上部署ai助理
 
 
 <p align="left">
   <strong><a href="README_EN.md">English</a> | <a href="README.md">中文</a> </strong>
 </p>
 
-**本项目基于[MimiClaw](https://github.com/memovai/mimiclaw)，在价值25左右的esp32s3开发板上部署本地AI助手，可以实现飞书控制GPIO、读写本地文件、控制ws2812b实现呼吸灯等功能**
+**本项目基于上游 [MimiClaw](https://github.com/memovai/mimiclaw)，在价值25左右的esp32s3开发板上部署本地AI助手，支持飞书、Telegram、WebSocket 交互，本地文件读写，GPIO 控制，定时任务，心跳唤醒，以及 WS2812B 呼吸灯等功能。**
 
 
-## 认识 [MimiClaw](https://github.com/memovai/mimiclaw)
+## 认识 esp32claw
 
 - **小巧** — 没有 Linux，没有 Node.js，没有臃肿依赖 — 纯 C
 - **好用** — 在 Telegram 发消息，剩下的它来搞定
@@ -17,7 +17,7 @@
 - **可爱** — 一块 ESP32-S3 开发板，$5，没了
 
 
-## 相比于MimiClaw，esp32Claw做了以下修改：
+## 相比于上游 MimiClaw，esp32claw 做了以下修改：
 
 - **使用MiniMax的API，每月29RMB**
 - **增加了WS2812B驱动，实现呼吸灯功能**
@@ -35,7 +35,7 @@
 - 一个 **飞书机器人**
 - 一个 **大模型API**
 
-### Ubuntu和macOS 安装，参照[MimiClaw](https://github.com/memovai/mimiclaw)
+### Ubuntu和macOS 安装，参照上游 [MimiClaw](https://github.com/memovai/mimiclaw)
 ### Windows11 安装
 
 ```bash
@@ -150,7 +150,7 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 
 ### 到这里就完成了mimi_secrets.h文件所有信息的填写，
 
-### 配置WS2812B，打开mimiclaw-main\main\mimi_config.h文件
+### 配置WS2812B，打开 `main/mimi_config.h` 文件
 
 <img src="assets\image8.png" alt="" width="1080" />
 
@@ -244,7 +244,7 @@ mimi> restart                     # 重启
 
 ## 记忆
 
-MimiClaw 把所有数据存为纯文本文件，可以直接读取和编辑：
+esp32claw 把所有数据存为纯文本文件，可以直接读取和编辑：
 
 | 文件 | 说明 |
 |------|------|
@@ -253,26 +253,30 @@ MimiClaw 把所有数据存为纯文本文件，可以直接读取和编辑：
 | `MEMORY.md` | 长期记忆 — 它应该一直记住的事 |
 | `HEARTBEAT.md` | 待办清单 — 机器人定期检查并自主执行 |
 | `cron.json` | 定时任务 — AI 创建的周期性或一次性任务 |
-| `2026-02-05.md` | 每日笔记 — 今天发生了什么 |
-| `tg_12345.jsonl` | 聊天记录 — 你和它的对话 |
+| `2026-02-05.md` | 每日笔记 — 直接存放在 `/spiffs/memory/` 下 |
+| `tg_12345.jsonl` | 聊天记录 — 当前实现统一存放在 `/spiffs/sessions/` 下，文件名格式为 `tg_<chat_id>.jsonl` |
 
 ## 工具
 
-MimiClaw 同时支持 Anthropic 和 OpenAI 的工具调用 — LLM 在对话中可以调用工具，循环执行直到任务完成（ReAct 模式）。
+esp32claw 同时支持 Anthropic 和 OpenAI 的工具调用 — LLM 在对话中可以调用工具，循环执行直到任务完成（ReAct 模式）。
 
 | 工具 | 说明 |
 |------|------|
 | `web_search` | 通过 Tavily（优先）或 Brave 搜索网页，获取实时信息 |
 | `get_current_time` | 通过 HTTP 获取当前日期和时间，并设置系统时钟 |
+| `get_device_status` | 查询设备当前 WiFi、IP、运行时长、内存、PSRAM 和灯光状态 |
+| `read_file` / `write_file` / `edit_file` / `list_dir` | 读写和列出 SPIFFS 文件 |
 | `cron_add` | 创建定时或一次性任务（LLM 自主创建 cron 任务） |
 | `cron_list` | 列出所有已调度的 cron 任务 |
 | `cron_remove` | 按 ID 删除 cron 任务 |
+| `gpio_write` / `gpio_read` / `gpio_read_all` | 控制和读取允许访问的 GPIO |
+| `set_led_color` / `led_off` / `breathing_led_on` / `breathing_led_off` / `breathing_led_status` | 控制 GPIO48 上的 WS2812B 灯珠 |
 
 启用网页搜索可在 `mimi_secrets.h` 中设置 [Tavily API key](https://app.tavily.com/home)（优先，`MIMI_SECRET_TAVILY_KEY`），或 [Brave Search API key](https://brave.com/search/api/)（`MIMI_SECRET_SEARCH_KEY`）。
 
 ## 定时任务（Cron）
 
-MimiClaw 内置 cron 调度器，让 AI 可以自主安排任务。LLM 可以通过 `cron_add` 工具创建周期性任务（"每 N 秒"）或一次性任务（"在某个时间戳"）。任务触发时，消息会注入到 Agent 循环 — AI 自动醒来、处理任务并回复。
+esp32claw 内置 cron 调度器，让 AI 可以自主安排任务。LLM 可以通过 `cron_add` 工具创建周期性任务（"每 N 秒"）或一次性任务（"在某个时间戳"）。任务触发时，消息会注入到 Agent 循环 — AI 自动醒来、处理任务并回复。
 
 任务持久化存储在 SPIFFS（`cron.json`），重启后不会丢失。典型用途：每日总结、定时提醒、定期巡检。
 
@@ -280,18 +284,20 @@ MimiClaw 内置 cron 调度器，让 AI 可以自主安排任务。LLM 可以通
 
 心跳服务会定期读取 SPIFFS 上的 `HEARTBEAT.md`，检查是否有待办事项。如果发现未完成的条目（非空行、非标题、非已勾选的 `- [x]`），就会向 Agent 循环发送提示，让 AI 自主处理。
 
-这让 MimiClaw 变成一个主动型助理 — 把任务写入 `HEARTBEAT.md`，机器人会在下一次心跳周期自动拾取执行（默认每 30 分钟）。
+这让 esp32claw 变成一个主动型助理 — 把任务写入 `HEARTBEAT.md`，机器人会在下一次心跳周期自动拾取执行（默认每 30 分钟）。
 
 ## 其他功能
 
 - **WebSocket 网关** — 端口 18789，局域网内用任意 WebSocket 客户端连接
-- **OTA 更新** — WiFi 远程刷固件，无需 USB
 - **双核** — 网络 I/O 和 AI 处理分别跑在不同 CPU 核心
 - **HTTP 代理** — CONNECT 隧道，适配受限网络
+- **SOCKS5 代理** — 可选 SOCKS5 隧道，适配受限网络
 - **多提供商** — 同时支持 Anthropic (Claude) 和 OpenAI (GPT)，运行时可切换
 - **定时任务** — AI 可自主创建周期性和一次性任务，重启后持久保存
 - **心跳服务** — 定期检查任务文件，驱动 AI 自主执行
 - **工具调用** — ReAct Agent 循环，两种提供商均支持工具调用
+
+说明：`main/ota/` 下保留了 OTA 源码，但当前还没有接入活动启动流程，也没有编进 `main/CMakeLists.txt`。
 
 
 ## 许可证
@@ -300,7 +306,7 @@ MIT
 
 ## 致谢
 
-感谢 MimiClaw 的开发者。
+感谢上游 MimiClaw 的开发者。
 
-点击进入[MimiClaw](https://github.com/memovai/mimiclaw)主页。
+点击进入上游 [MimiClaw](https://github.com/memovai/mimiclaw) 主页。
 

@@ -1,13 +1,13 @@
-# Esp32Claw: Deploy an AI Assistant on ESP32-S3
+﻿# Esp32Claw: Deploy an AI Assistant on ESP32-S3
 
 
 <p align="left">
   <strong><a href="README_EN.md">English</a> | <a href="README.md">中文</a> </strong>
 </p>
 
-**This project is based on [MimiClaw](https://github.com/memovai/mimiclaw). It deploys a local AI assistant on an ESP32-S3 development board costing around 25 RMB, and supports features such as controlling GPIO through Feishu, reading and writing local files, and driving WS2812B LEDs for breathing light effects.**
+**This project is based on the upstream [MimiClaw](https://github.com/memovai/mimiclaw). It deploys a local AI assistant on an ESP32-S3 development board costing around 25 RMB, and supports Feishu, Telegram, and WebSocket interaction, local file I/O, GPIO control, scheduled tasks, heartbeat wakeups, and WS2812B breathing light effects.**
 
-## Meet [MimiClaw](https://github.com/memovai/mimiclaw)
+## Meet esp32claw
 
 - **Tiny** — No Linux, no Node.js, no bloated dependencies — pure C
 - **Easy to use** — Just send a message on Telegram, and it handles the rest
@@ -15,7 +15,7 @@
 - **Capable** — USB powered, 0.5W, runs 24/7
 - **Cute** — One ESP32-S3 development board, about $5, that’s it
 
-## Compared with MimiClaw, esp32Claw includes the following changes:
+## Compared with the upstream MimiClaw, esp32claw includes the following changes:
 
 - **Uses the MiniMax API, starting from 29 RMB per month**
 - **Adds WS2812B support for breathing light effects**
@@ -35,7 +35,7 @@
 
 ### Ubuntu and macOS installation
 
-Please refer to [MimiClaw](https://github.com/memovai/mimiclaw).
+Please refer to the upstream [MimiClaw](https://github.com/memovai/mimiclaw).
 
 ### Windows 11 installation
 
@@ -156,7 +156,7 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 
 ### At this point, all required fields in `mimi_secrets.h` should be filled in
 
-### Configure WS2812B by opening `mimiclaw-main/main/mimi_config.h`
+### Configure WS2812B by opening `main/mimi_config.h`
 
 <img src="assets/image8.png" alt="WS2812B configuration" width="1080" />
 
@@ -242,7 +242,7 @@ mimi> restart                  # Reboot
 
 ## Memory
 
-MimiClaw stores all data as plain text files, which can be read and edited directly:
+esp32claw stores all data as plain text files, which can be read and edited directly:
 
 | File | Description |
 |------|-------------|
@@ -251,26 +251,30 @@ MimiClaw stores all data as plain text files, which can be read and edited direc
 | `MEMORY.md` | Long-term memory — things it should always remember |
 | `HEARTBEAT.md` | To-do list — the bot checks and executes tasks periodically |
 | `cron.json` | Scheduled tasks — recurring or one-time tasks created by the AI |
-| `2026-02-05.md` | Daily note — what happened today |
-| `tg_12345.jsonl` | Chat history — your conversations with it |
+| `2026-02-05.md` | Daily note — stored directly under `/spiffs/memory/` |
+| `tg_12345.jsonl` | Chat history — current implementation stores sessions as `tg_<chat_id>.jsonl` under `/spiffs/sessions/` |
 
 ## Tools
 
-MimiClaw supports tool calling for both Anthropic and OpenAI. The LLM can call tools during a conversation and loop until the task is completed (ReAct mode).
+esp32claw supports tool calling for both Anthropic and OpenAI. The LLM can call tools during a conversation and loop until the task is completed (ReAct mode).
 
 | Tool | Description |
 |------|-------------|
 | `web_search` | Search the web via Tavily (preferred) or Brave for real-time information |
 | `get_current_time` | Fetch the current date and time via HTTP and set the system clock |
+| `get_device_status` | Report Wi-Fi, uptime, memory, PSRAM, and LED status |
+| `read_file` / `write_file` / `edit_file` / `list_dir` | Read and modify files in SPIFFS |
 | `cron_add` | Create scheduled or one-time tasks (the LLM can create cron jobs autonomously) |
 | `cron_list` | List all scheduled cron tasks |
 | `cron_remove` | Remove a cron task by ID |
+| `gpio_write` / `gpio_read` / `gpio_read_all` | Control and inspect allowed GPIO pins |
+| `set_led_color` / `led_off` / `breathing_led_on` / `breathing_led_off` / `breathing_led_status` | Control the WS2812B LED on GPIO48 |
 
 To enable web search, set a [Tavily API key](https://app.tavily.com/home) (`MIMI_SECRET_TAVILY_KEY`, preferred) or a [Brave Search API key](https://brave.com/search/api/) (`MIMI_SECRET_SEARCH_KEY`) in `mimi_secrets.h`.
 
 ## Scheduled Tasks (Cron)
 
-MimiClaw includes a built-in cron scheduler, allowing the AI to schedule tasks autonomously. The LLM can use the `cron_add` tool to create recurring tasks ("every N seconds") or one-time tasks ("at a specific timestamp"). When triggered, the message is injected into the agent loop — the AI wakes up automatically, processes the task, and replies.
+esp32claw includes a built-in cron scheduler, allowing the AI to schedule tasks autonomously. The LLM can use the `cron_add` tool to create recurring tasks ("every N seconds") or one-time tasks ("at a specific timestamp"). When triggered, the message is injected into the agent loop — the AI wakes up automatically, processes the task, and replies.
 
 Tasks are stored persistently in SPIFFS (`cron.json`) and will survive reboots. Typical use cases include daily summaries, reminders, and regular inspections.
 
@@ -278,18 +282,20 @@ Tasks are stored persistently in SPIFFS (`cron.json`) and will survive reboots. 
 
 The heartbeat service periodically reads `HEARTBEAT.md` from SPIFFS and checks whether there are pending tasks. If it finds unfinished items (non-empty lines, non-title lines, and unchecked entries instead of `- [x]`), it sends a prompt to the agent loop so the AI can process them autonomously.
 
-This turns MimiClaw into a proactive assistant — write tasks into `HEARTBEAT.md`, and the bot will automatically pick them up during the next heartbeat cycle (default: every 30 minutes).
+This turns esp32claw into a proactive assistant — write tasks into `HEARTBEAT.md`, and the bot will automatically pick them up during the next heartbeat cycle (default: every 30 minutes).
 
 ## Other Features
 
 - **WebSocket gateway** — Port 18789, connect from any WebSocket client within the local network
-- **OTA updates** — Flash firmware over Wi-Fi without USB
 - **Dual-core** — Network I/O and AI processing run on separate CPU cores
 - **HTTP proxy** — CONNECT tunneling for restricted network environments
+- **SOCKS5 proxy** — Optional SOCKS5 tunneling for restricted network environments
 - **Multi-provider** — Supports both Anthropic (Claude) and OpenAI (GPT), switchable at runtime
 - **Scheduled tasks** — The AI can create recurring and one-time tasks autonomously, with persistence across reboots
 - **Heartbeat service** — Periodically checks task files and drives autonomous execution
 - **Tool calling** — ReAct agent loop with tool support for both providers
+
+Note: an OTA source module exists in `main/ota/`, but it is not currently wired into the active startup path or `main/CMakeLists.txt`.
 
 ## License
 
@@ -297,6 +303,7 @@ MIT
 
 ## Acknowledgements
 
-Thanks to the developers of MimiClaw.
+Thanks to the developers of the upstream MimiClaw.
 
-Visit the [MimiClaw](https://github.com/memovai/mimiclaw) homepage.
+Visit the upstream [MimiClaw](https://github.com/memovai/mimiclaw) homepage.
+

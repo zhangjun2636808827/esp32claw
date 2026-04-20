@@ -30,6 +30,18 @@
 
 static const char *TAG = "mimi";
 
+static void serial_cli_boot_task(void *arg)
+{
+    (void)arg;
+
+    esp_err_t err = serial_cli_init();
+    if (err != ESP_OK) {
+        ESP_LOGW(TAG, "Serial CLI unavailable: %s", esp_err_to_name(err));
+    }
+
+    vTaskDelete(NULL);
+}
+
 static esp_err_t init_nvs(void)
 {
     esp_err_t ret = nvs_flash_init();
@@ -109,7 +121,7 @@ void app_main(void)
     esp_log_level_set("esp-x509-crt-bundle", ESP_LOG_WARN);
 
     ESP_LOGI(TAG, "========================================");
-    ESP_LOGI(TAG, "  MimiClaw - ESP32-S3 AI Agent");
+    ESP_LOGI(TAG, "  esp32claw - ESP32-S3 AI Agent");
     ESP_LOGI(TAG, "========================================");
 
     /* Print memory info */
@@ -142,11 +154,6 @@ void app_main(void)
     ESP_ERROR_CHECK(cron_service_init());
     ESP_ERROR_CHECK(heartbeat_init());
     ESP_ERROR_CHECK(agent_loop_init());
-    
-
-    /* Start Serial CLI first (works without WiFi) */
-    ESP_ERROR_CHECK(serial_cli_init());
-
     
 
     /* Start WiFi */
@@ -200,8 +207,17 @@ void app_main(void)
         heartbeat_start();
         ESP_ERROR_CHECK(ws_server_start());
 
+        /* Start Serial CLI in a detached task so console/backend issues never block boot. */
+        if (xTaskCreatePinnedToCore(
+                serial_cli_boot_task, "serial_cli_boot",
+                MIMI_CLI_STACK, NULL,
+                MIMI_CLI_PRIO, NULL, MIMI_CLI_CORE) != pdPASS) {
+            ESP_LOGW(TAG, "Failed to spawn Serial CLI bootstrap task");
+        }
+
         ESP_LOGI(TAG, "All services started!");
     }
 
-    ESP_LOGI(TAG, "MimiClaw ready. Type 'help' for CLI commands.");
+    ESP_LOGI(TAG, "esp32claw ready. Type 'help' for CLI commands.");
 }
+

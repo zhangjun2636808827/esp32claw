@@ -1,6 +1,6 @@
 #pragma once
 
-/* MimiClaw Global Configuration */
+/* esp32claw Global Configuration */
 
 /* Build-time secrets (highest priority, override NVS) */
 #if __has_include("mimi_secrets.h")
@@ -168,9 +168,10 @@
 #define MIMI_NVS_KEY_PROXY_TYPE      "proxy_type"
 
 /* WiFi Onboarding (Captive Portal) */
-#define MIMI_ONBOARD_AP_PREFIX    "MimiClaw-"
+#define MIMI_ONBOARD_AP_PREFIX    "esp32claw-"
 #define MIMI_ONBOARD_AP_PASS      ""          /* open network */
 #define MIMI_ONBOARD_HTTP_PORT    80
 #define MIMI_ONBOARD_DNS_STACK    (4 * 1024)
 #define MIMI_ONBOARD_MAX_SCAN     20
 #define MIMI_ONBOARD_KEEP_ADMIN_AP 0
+

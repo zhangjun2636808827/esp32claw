@@ -1,4 +1,4 @@
-# MimiClaw - ESP32-S3 Target Configuration
+# esp32claw - ESP32-S3 Target Configuration
 CONFIG_IDF_TARGET="esp32s3"
 
 # Flash 16MB + QIO
@@ -35,7 +35,8 @@ CONFIG_HTTPD_WS_SUPPORT=y
 CONFIG_PARTITION_TABLE_CUSTOM=y
 CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
 
-# Console: USB Serial/JTAG primary (supports both input and output via USB)
-# ESP-IDF v5.5+ has TX timeout protection (50ms) so device won't hang
-# when no USB host is connected.
-CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+# Console: use the board's regular UART console by default.
+# This keeps runtime services independent from whether the native USB
+# Serial/JTAG port is currently connected to a host.
+CONFIG_ESP_CONSOLE_UART_DEFAULT=y
+
