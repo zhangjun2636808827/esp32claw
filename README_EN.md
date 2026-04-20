@@ -1,28 +1,57 @@
-﻿# Esp32Claw: Deploy an AI Assistant on ESP32-S3
+﻿# esp32claw
 
+<div align="center">
 
-<p align="left">
-  <strong><a href="README_EN.md">English</a> | <a href="README.md">中文</a> </strong>
+### A lightweight, always-on AI assistant for ESP32-S3
+
+<p>
+  <strong><a href="README.md">中文</a></strong> ·
+  <strong><a href="README_EN.md">English</a></strong>
 </p>
 
-**This project is based on the upstream [MimiClaw](https://github.com/memovai/mimiclaw). It deploys a local AI assistant on an ESP32-S3 development board costing around 25 RMB, and supports Feishu, Telegram, and WebSocket interaction, local file I/O, GPIO control, scheduled tasks, heartbeat wakeups, and WS2812B breathing light effects.**
+</div>
+
+> A fork and extension of the upstream [MimiClaw](https://github.com/memovai/mimiclaw).  
+> `esp32claw` runs on a low-cost ESP32-S3 development board and supports Feishu, Telegram, WebSocket, tool execution, GPIO control, scheduled tasks, heartbeat wakeups, SPIFFS-based memory, and WS2812B breathing light effects.
+
+## Highlights
+
+| Feature | Description |
+|---------|-------------|
+| Lightweight runtime | No Linux, no Node.js, pure C |
+| Multi-channel chat | Feishu, Telegram, and WebSocket |
+| Tool execution | Files, GPIO, LED, web search, time, device status, and cron |
+| Persistent memory | Sessions, memory, skills, and tasks stored in SPIFFS |
+| Low power | Suitable for USB or battery-powered deployments |
+| Fun to build | A full device-side AI agent on a single ESP32-S3 board |
 
 ## Meet esp32claw
 
-- **Tiny** — No Linux, no Node.js, no bloated dependencies — pure C
-- **Easy to use** — Just send a message on Telegram, and it handles the rest
-- **Loyal** — Learns from memory and remembers across reboots
-- **Capable** — USB powered, 0.5W, runs 24/7
-- **Cute** — One ESP32-S3 development board, about $5, that’s it
+- **Tiny**: no Linux, no Node.js, no bloated dependency stack
+- **Action-oriented**: send a message and it can call tools to do real work
+- **Persistent**: memory, sessions, and tasks survive reboots
+- **Always on**: low cost and low power, suitable for 24/7 runtime
+- **Playful**: chat, LEDs, file operations, and automation in one board
 
-## Compared with the upstream MimiClaw, esp32claw includes the following changes:
+## What changed from upstream MimiClaw
 
-- **Uses the MiniMax API, starting from 29 RMB per month**
-- **Adds WS2812B support for breathing light effects**
-- **Adds a device status query tool, allowing you to check Wi-Fi, IP address, uptime, memory, PSRAM, current light mode, color, brightness, and breathing cycle through Feishu**
-- **Improves the Wi-Fi reconnection logic to avoid crashes**
-- **Fixes the issue where the Telegram branch still runs even when only Feishu is configured**
-- **Optimizes the local management AP so it no longer stays active after Wi-Fi connects, saving resources**
+- **MiniMax API integration** for lower daily usage cost
+- **WS2812B driver support** with breathing light effects
+- **Device status tool** for Wi-Fi, IP, uptime, memory, PSRAM, and LED state
+- **Improved Wi-Fi reconnection logic** to reduce freeze/crash risk
+- **Feishu-only deployments no longer keep Telegram logic active**
+- **Local admin AP behavior optimized** to reduce runtime overhead after Wi-Fi connects
+
+## Quick Navigation
+
+- [Quick Start](#quick-start)
+- [CLI Commands](#cli-commands-via-uartcom-port)
+- [Memory](#memory)
+- [Tools](#tools)
+- [Scheduled Tasks (Cron)](#scheduled-tasks-cron)
+- [Heartbeat](#heartbeat)
+- [Other Features](#other-features)
+- [License](#license)
 
 ## Quick Start
 
@@ -33,14 +62,14 @@
 - A **Feishu bot**
 - A **large-model API**
 
-### Ubuntu and macOS installation
+### Ubuntu and macOS
 
 Please refer to the upstream [MimiClaw](https://github.com/memovai/mimiclaw).
 
-### Windows 11 installation
+### Windows 11
 
 ```bash
-# Install ESP-IDF v5.5+ first:
+# Install ESP-IDF v5.5+ first
 # If git clone fails, download the v5.5.2 zip package from the official website
 git clone -b v5.5.2 --recursive https://github.com/espressif/esp-idf.git
 
@@ -48,14 +77,16 @@ git clone https://github.com/zhangjun2636808827/esp32claw
 
 # Install ESP-IDF first
 cd esp-idf-v5.5.2
-# Open cmd in the terminal, otherwise idf.py may not be recognized after installation
+
+# Open cmd in the terminal, otherwise idf.py may not be recognized after install
 cmd
+
 # Install
 install.bat
 export.bat
+
 # Verify installation
 idf.py --help
-# If you see the expected help output, ESP-IDF has been installed successfully in this terminal
 ```
 
 <img src="assets/install.png" alt="ESP-IDF installation" width="1080" />
@@ -63,9 +94,11 @@ idf.py --help
 ```bash
 # Enter the esp32claw directory
 cd esp32claw
+
 # Select the target chip
 idf.py set-target esp32s3
-# Copy the configuration file; all information should be filled in this file
+
+# Copy the configuration file; all required information should be filled in here
 cp main/mimi_secrets.h.example main/mimi_secrets.h
 ```
 
@@ -135,17 +168,19 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 <img src="assets/feishu9.png" alt="Publish Feishu app step 1" width="1080" />
 <img src="assets/feishu10.png" alt="Publish Feishu app step 2" width="1080" />
 
-### Create a group chat in Feishu, then go to Settings -> Group Bots -> Add -> Select the bot you created earlier -> Mention your bot in the group and send a message, for example:
+### Test the bot in Feishu
+
+Create a group chat in Feishu, then go to `Settings -> Group Bots -> Add`, select the bot you created earlier, and send a message such as:
 
 `@esp32claw Turn on a blue breathing light with a 2s cycle`
 
 <img src="assets/feishu11.png" alt="Use the bot in a Feishu group" width="240" />
 
-### Feishu setup is now complete. Next, configure your [MiniMax](https://www.minimaxi.com/) credentials
+### Configure your [MiniMax](https://www.minimaxi.com/) credentials
 
-### Subscribe to the 29 RMB Starter plan on [MiniMax](https://www.minimaxi.com/)
-
-### Go to Account Management -> Token Plan -> Copy the Token Plan Key into `MIMI_SECRET_API_KEY`
+- Subscribe to the 29 RMB Starter plan on [MiniMax](https://www.minimaxi.com/)
+- Go to `Account Management -> Token Plan`
+- Copy the Token Plan Key into `MIMI_SECRET_API_KEY`
 
 <img src="assets/MiniMax1.png" alt="MiniMax token plan key" width="1080" />
 
@@ -154,15 +189,15 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 #define MIMI_SECRET_MODEL_PROVIDER  "openai"       // Provider; default is Anthropic. If using MiniMax models, set this to "openai"
 ```
 
-### At this point, all required fields in `mimi_secrets.h` should be filled in
+### After `mimi_secrets.h` is filled in, configure WS2812B
 
-### Configure WS2812B by opening `main/mimi_config.h`
+Open `main/mimi_config.h`:
 
 <img src="assets/image8.png" alt="WS2812B configuration" width="1080" />
 
-### Next, build and flash the firmware
+### Build and flash the firmware
 
-### Connect the ESP32 development board to your computer, and make sure to use the flashing port
+### Connect the ESP32 development board to your computer and make sure to use the flashing port
 
 <img src="assets/image.png" alt="Connect ESP32 board" width="1080" />
 
@@ -170,14 +205,14 @@ cp main/mimi_secrets.h.example main/mimi_secrets.h
 
 <img src="assets/image2.png" alt="Open Device Manager" width="240" />
 
-### Find which COM port your board is connected to
+### Find which COM port the board is connected to
 
 <img src="assets/image3.png" alt="Find COM port" width="1080" />
 
-### In this example, the port is `COM5`. Now build the firmware
+### In this example, the port is `COM5`
 
 ```bash
-# Full rebuild is required after modifying mimi_secrets.h
+# A full rebuild is recommended after modifying mimi_secrets.h
 idf.py fullclean && idf.py build
 
 idf.py -p COM5 flash monitor
@@ -191,16 +226,18 @@ idf.py -p COM5 flash monitor
 <img src="assets/image6.png" alt="Successful build and flash 1" width="1080" />
 <img src="assets/image7.png" alt="Successful build and flash 2" width="1080" />
 
-### Connect the USB cable to the serial port, open MobaXterm (`MobaXterm/MobaXterm.exe`), and follow the steps below to open the serial port
+### Connect the serial port and open MobaXterm
+
+Connect the USB cable to the serial port, open `MobaXterm/MobaXterm.exe`, and follow the steps below:
 
 <img src="assets/image9.png" alt="Open serial port in MobaXterm step 1" width="1080" />
 <img src="assets/image10.png" alt="Open serial port in MobaXterm step 2" width="1080" />
 
-### Press the reset button on the ESP32 development board
+### Press the reset button on the ESP32 board
 
 <img src="assets/image11.png" alt="Reset ESP32 board" width="1080" />
 
-### Now start chatting!
+### Now start chatting
 
 <img src="assets/image12.jpg" alt="Chat example 1" width="240" />
 <img src="assets/image13.jpg" alt="Chat example 2" width="240" />
@@ -208,9 +245,9 @@ idf.py -p COM5 flash monitor
 
 ### CLI Commands (via UART/COM port)
 
-You can configure and debug the device through the serial port. **Configuration commands** let you change settings without recompiling — just plug in a USB cable anytime and update them.
+You can configure and debug the device through the serial port. **Configuration commands** let you update settings without recompiling.
 
-**Runtime configuration** (stored in NVS and overrides compile-time defaults):
+**Runtime configuration** stored in NVS and overriding compile-time defaults:
 
 ```text
 mimi> wifi_set MySSID MyPassword   # Change Wi-Fi
@@ -246,25 +283,25 @@ esp32claw stores all data as plain text files, which can be read and edited dire
 
 | File | Description |
 |------|-------------|
-| `SOUL.md` | The bot's personality — edit it to change behavior |
-| `USER.md` | Information about you — name, preferences, language |
-| `MEMORY.md` | Long-term memory — things it should always remember |
-| `HEARTBEAT.md` | To-do list — the bot checks and executes tasks periodically |
-| `cron.json` | Scheduled tasks — recurring or one-time tasks created by the AI |
-| `2026-02-05.md` | Daily note — stored directly under `/spiffs/memory/` |
-| `tg_12345.jsonl` | Chat history — current implementation stores sessions as `tg_<chat_id>.jsonl` under `/spiffs/sessions/` |
+| `SOUL.md` | The bot personality, editable to change behavior |
+| `USER.md` | Information about you, such as name, preferences, and language |
+| `MEMORY.md` | Long-term memory, things it should keep forever |
+| `HEARTBEAT.md` | To-do list checked periodically by the bot |
+| `cron.json` | Scheduled tasks created by the AI |
+| `2026-02-05.md` | Daily note stored under `/spiffs/memory/` |
+| `tg_12345.jsonl` | Chat history currently stored as `tg_<chat_id>.jsonl` under `/spiffs/sessions/` |
 
 ## Tools
 
-esp32claw supports tool calling for both Anthropic and OpenAI. The LLM can call tools during a conversation and loop until the task is completed (ReAct mode).
+esp32claw supports tool calling for both Anthropic and OpenAI. During a conversation, the LLM can call tools repeatedly until the task is completed, following a ReAct-style loop.
 
 | Tool | Description |
 |------|-------------|
 | `web_search` | Search the web via Tavily (preferred) or Brave for real-time information |
 | `get_current_time` | Fetch the current date and time via HTTP and set the system clock |
-| `get_device_status` | Report Wi-Fi, uptime, memory, PSRAM, and LED status |
+| `get_device_status` | Report Wi-Fi, IP, uptime, memory, PSRAM, and LED status |
 | `read_file` / `write_file` / `edit_file` / `list_dir` | Read and modify files in SPIFFS |
-| `cron_add` | Create scheduled or one-time tasks (the LLM can create cron jobs autonomously) |
+| `cron_add` | Create scheduled or one-time tasks autonomously |
 | `cron_list` | List all scheduled cron tasks |
 | `cron_remove` | Remove a cron task by ID |
 | `gpio_write` / `gpio_read` / `gpio_read_all` | Control and inspect allowed GPIO pins |
@@ -274,26 +311,26 @@ To enable web search, set a [Tavily API key](https://app.tavily.com/home) (`MIMI
 
 ## Scheduled Tasks (Cron)
 
-esp32claw includes a built-in cron scheduler, allowing the AI to schedule tasks autonomously. The LLM can use the `cron_add` tool to create recurring tasks ("every N seconds") or one-time tasks ("at a specific timestamp"). When triggered, the message is injected into the agent loop — the AI wakes up automatically, processes the task, and replies.
+esp32claw includes a built-in cron scheduler, allowing the AI to schedule tasks autonomously. The LLM can use `cron_add` to create recurring jobs such as "every N seconds" or one-time jobs at a specific timestamp. When triggered, the message is injected into the agent loop and processed automatically.
 
-Tasks are stored persistently in SPIFFS (`cron.json`) and will survive reboots. Typical use cases include daily summaries, reminders, and regular inspections.
+Tasks are stored persistently in SPIFFS as `cron.json`, so they survive reboots. Typical use cases include reminders, daily summaries, and periodic inspections.
 
 ## Heartbeat
 
-The heartbeat service periodically reads `HEARTBEAT.md` from SPIFFS and checks whether there are pending tasks. If it finds unfinished items (non-empty lines, non-title lines, and unchecked entries instead of `- [x]`), it sends a prompt to the agent loop so the AI can process them autonomously.
+The heartbeat service periodically reads `HEARTBEAT.md` from SPIFFS and checks whether there are pending tasks. If it finds unfinished entries, such as non-empty lines that are not headings and not marked `- [x]`, it prompts the agent loop to handle them automatically.
 
-This turns esp32claw into a proactive assistant — write tasks into `HEARTBEAT.md`, and the bot will automatically pick them up during the next heartbeat cycle (default: every 30 minutes).
+This makes esp32claw a proactive assistant. Write tasks into `HEARTBEAT.md`, and the bot will pick them up during the next heartbeat cycle, which defaults to every 30 minutes.
 
 ## Other Features
 
-- **WebSocket gateway** — Port 18789, connect from any WebSocket client within the local network
-- **Dual-core** — Network I/O and AI processing run on separate CPU cores
-- **HTTP proxy** — CONNECT tunneling for restricted network environments
-- **SOCKS5 proxy** — Optional SOCKS5 tunneling for restricted network environments
-- **Multi-provider** — Supports both Anthropic (Claude) and OpenAI (GPT), switchable at runtime
-- **Scheduled tasks** — The AI can create recurring and one-time tasks autonomously, with persistence across reboots
-- **Heartbeat service** — Periodically checks task files and drives autonomous execution
-- **Tool calling** — ReAct agent loop with tool support for both providers
+- **WebSocket gateway**: port `18789`, accessible from any client on the local network
+- **Dual-core runtime**: network I/O and AI processing run on separate CPU cores
+- **HTTP proxy**: supports CONNECT tunneling for restricted environments
+- **SOCKS5 proxy**: optional SOCKS5 tunneling support
+- **Multi-provider**: switch between Anthropic (Claude) and OpenAI (GPT) at runtime
+- **Scheduled tasks**: autonomous recurring and one-time tasks with persistence
+- **Heartbeat service**: periodic task scanning and proactive execution
+- **Tool calling**: ReAct agent loop with tool support across providers
 
 Note: an OTA source module exists in `main/ota/`, but it is not currently wired into the active startup path or `main/CMakeLists.txt`.
 
@@ -303,7 +340,5 @@ MIT
 
 ## Acknowledgements
 
-Thanks to the developers of the upstream MimiClaw.
-
+Thanks to the developers of the upstream MimiClaw.  
 Visit the upstream [MimiClaw](https://github.com/memovai/mimiclaw) homepage.
-
